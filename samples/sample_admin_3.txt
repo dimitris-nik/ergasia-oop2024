@@ -13,6 +13,8 @@ Welcome admin1!
 7. Exit
 Enter your choice: **2**
 Enter product title you wish to edit: **Apple**
+Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing
+**1**
 Enter new title: **Dummy Apple**
 Product updated!
 ---Admin Menu---
