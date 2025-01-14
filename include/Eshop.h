@@ -12,8 +12,8 @@
 
 class Eshop {
 protected:
-    std::vector<User*> users;
-    std::vector<Product> products;
+    std::map<std::string, User*> users;
+    std::map<std::string, Product*> products;
 
     const std::string& productsFile;
     const std::string& usersFile;
