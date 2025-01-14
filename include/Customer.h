@@ -12,15 +12,8 @@ public:
     std::string historyFileName;
     Customer(std::string username, std::string password);
     void displayMenu();
-    std::string userType();
     void executeCommand(int choice);
-    void searchProduct();
-    void addProductToCart();
-    void updateProductInCart();
-    void removeProductFromCart();
-    void completeOrder();
-    void viewOrderHistory();
-    void viewCart();
+    
 };
 
 #endif

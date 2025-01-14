@@ -23,11 +23,7 @@ void Customer::displayMenu() {
      std::cout << "7. View cart" << std::endl;
     std::cout << "8. Exit" << std::endl;
     std::cout << "Enter your choice: ";
-}
-
-std::string Customer::userType() {
-    return "customer";
-}
+} 
 
 void Customer::executeCommand(int choice) {
     // to be implemented

@@ -8,8 +8,9 @@ int main(int argc, char* argv[]) {
     std::string usersFile;
 
     if (argc != 4) { //default files
-        std::cerr << "Usage: ./oop24 <categories_file> <products_file> <users_file>" << std::endl;
-        return 1;
+        categoriesFile = "files/categories.txt";
+        productsFile = "files/products.txt";
+        usersFile = "files/users.txt";
     }
     else{
         categoriesFile = argv[1];

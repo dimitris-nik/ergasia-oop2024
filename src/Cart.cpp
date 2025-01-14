@@ -6,16 +6,16 @@ void Cart::addProduct(Product& product, int quantity) {
     items[product] += quantity;
 }
 void Cart::removeProduct(std::string& title){
-     for (auto it = items.begin(); it != items.end(); ) {
+    for (auto it = items.begin(); it != items.end(); ) {
         if (it->first.title == title) {
             it = items.erase(it);
-         } else {
-             ++it;
+        } else {
+            ++it;
         }
     }
 }
 void Cart::updateProduct(Product& product, int quantity){
-        items[product] = quantity;
+    items[product] = quantity;
 }
 void Cart::displayCart() {
     std::cout << std::endl;
