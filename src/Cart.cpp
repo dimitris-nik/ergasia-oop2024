@@ -10,7 +10,7 @@ void Cart::removeProduct(std::string& title){
         if (it->first.title == title) {
             it = items.erase(it);
         } else {
-            ++it;
+            it++;
         }
     }
 }
@@ -26,5 +26,5 @@ void Cart::displayCart() {
          totalCost += item.first.price * item.second;
     }
     std::cout << "---CART END---" << std::endl;
-     std::cout << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;
+    std::cout << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;
 }
