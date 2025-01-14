@@ -25,6 +25,6 @@ void Customer::displayMenu() {
     std::cout << "Enter your choice: ";
 } 
 
-void Customer::executeCommand(int choice) {
+bool Customer::executeCommand(int choice) {
     // to be implemented
 }

@@ -1,4 +1,4 @@
-#ifndef CART_H
+#pragma once
 #define CART_H
 #include <vector>
 #include "Product.h"
@@ -13,5 +13,3 @@ public:
     void updateProduct(Product& product, int quantity);
     void displayCart();
 };
-
-#endif

@@ -18,6 +18,6 @@ void Admin::displayMenu() {
     std::cout << "Enter your choice: ";
 }
 
-void Admin::executeCommand(int choice) {
+bool Admin::executeCommand(int choice) {
     //to be implemented
 }

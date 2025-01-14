@@ -2,124 +2,112 @@
 #include "../include/utils.h"
 #include <iostream>
 #include <sstream>
-#include <iomanip> // For std::fixed and std::setprecision
+#include <iomanip> // For fixed and setprecision
+using namespace std;
 
-
-Eshop::Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile) {}
+Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile) {
+    loadUsers(usersFile);
+    loadProducts(productsFile);
+}
 
 Eshop::~Eshop(){
     for(auto user : users){
         delete user.second;
     }   
+    for(auto product : products){
+        delete product.second;
+    }   
+}
+
+User* Eshop::login(){
+    string username, password;
+    cout << "Please enter your username: ";
+    cin >> username;
+    cout << "Please enter your password: ";
+    cin >> password;
+    if (users.find(username) != users.end() and users[username]->checkPassword(password)) {
+        cout << "Welcome " << username << "!" << endl;
+        return users[username];
+    }
+    else {
+        cout << "Invalid username or password. Try again" << endl;
+        return login();
+    }
+}
+
+User* Eshop::registers(){
+    string username, password;
+    bool exists = false;
+    while (!exists) {
+        exists = true;
+        cout << "Please enter your username: ";
+        cin >> username;
+        if (users.find(username) != users.end()) {
+            cout << "Username already exists. Please choose another." << endl;
+            exists = false;
+        }
+    } 
+    cout << "Please enter your password: ";
+    cin >> password;
+    string isAdminInput;
+    cout << "Are you an admin user? (Y/N): ";
+    cin >> isAdminInput;
+    bool isAdmin = (isAdminInput == "Y" || isAdminInput == "y");
+
+    if (isAdmin) {
+        auto admin = new Admin(username, password);
+        users[username] = admin;
+        return admin;
+            
+    } else {
+        auto customer = new Customer(username, password);
+        users[username] = customer;
+        return customer;
+    }
 }
 
 void Eshop::run(){
-    loadUsers(usersFile);
-    loadProducts(productsFile);
-    std::string option;
+    string option;
     User* currentUser = nullptr;
-    std::cout << "Welcome to the e-shop!!!" << std::endl;
-    std::cout << "Do you want to login or register? (enter option): ";
-    std::cin >> option;
+    cout << "Welcome to the e-shop!!!" << endl;
+    cout << "Do you want to login or register? (enter option): ";
+    bool loggedIn = false;
+    cin >> option;
     while (option != "login" && option != "register") {
-        std::cout << "Invalid option. Please enter 'login' or 'register'." << std::endl;
-        std::cin >> option;
+        cout << "Invalid option. Please enter 'login' or 'register'." << endl;
+        cin >> option;
     }
     
     if (option == "login") {
-        bool loggedIn = false;
-        
-
-        
-        while (!loggedIn){
-            std::string username, password;
-            std::cout << "Please enter your username: ";
-            std::cin >> username;
-            std::cout << "Please enter your password: ";
-            std::cin >> password;
-            if (users.find(username) != users.end() and users[username]->checkPassword(password)) {
-                std::cout << "Welcome " << username << "!" << std::endl;
-                currentUser = users[username];
-                loggedIn = true;
-            }
-            else {
-                std::cout << "Invalid username or password. Try again" << std::endl;
-            }
-        }
-        
+        currentUser = login();
     } else if (option == "register") {
-
-        std::string username, password;
-        bool exists = false;
-        while (!exists) {
-            exists = true;
-            std::cout << "Please enter your username: ";
-            std::cin >> username;
-            if (users.find(username) != users.end()) {
-                std::cout << "Username already exists. Please choose another." << std::endl;
-                exists = false;
-            }
-        } 
-        std::cout << "Please enter your password: ";
-        std::cin >> password;
-        std::string isAdminInput;
-        std::cout << "Are you an admin user? (Y/N): ";
-        std::cin >> isAdminInput;
-        bool isAdmin = (isAdminInput == "Y" || isAdminInput == "y");
-
-        if (isAdmin) {
-            auto admin = new Admin(username, password);
-            users[username] = admin;
-            currentUser = admin;
-                
-        } else {
-            auto customer = new Customer(username, password);
-            users[username] = customer;
-            currentUser = customer;
-        }
-        std::cout << "Thanks for signing up! You are automatically logged-in as " << username << std::endl;
-        
+        currentUser = registers();
     }
-
-    while (true) {
+    currentUser->displayMenu();
+    while (currentUser->executeCommand()) {
         currentUser->displayMenu();
-        int choice;
-        std::cin >> choice;
-        while (choice < 1 || choice > 8) {
-            std::cout << "Invalid choice. Please enter a number between 1 and 8." << std::endl;
-            std::cin >> choice;
-        }
-        if (choice == 7) {
-            break;
-        }
-        else{
-            currentUser->executeCommand(choice);
-        }
-
     }
-    std::cout << "Goodbye!" << std::endl;
+    cout << "Goodbye!" << endl;
     saveChanges();
     
 }
 
-void Eshop::loadUsers(const std::string& filename) {
-    std::ifstream file(filename);
-    std::string line;
+void Eshop::loadUsers(const string& filename) {
+    ifstream file(filename);
+    string line;
 
     if (!file.is_open()) {
-        std::cerr << "Error opening users file." << std::endl;
+        cerr << "Error opening users file." << endl;
         return;
     }
 
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string username, password, isAdminStr;
-
-        std::getline(ss, username, ',');
-        std::getline(ss, password, ',');
-        std::getline(ss, isAdminStr, ',');
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string username, password, isAdminStr;
+        getline(ss, username, ',');
+        getline(ss, password, ',');
+        getline(ss, isAdminStr, ',');
         bool isAdmin = (isAdminStr == "1");
-
         if(isAdmin){
             users[username] = new Admin(username, password);
         } else {
@@ -129,33 +117,31 @@ void Eshop::loadUsers(const std::string& filename) {
     file.close();
 }
 
-void Eshop::loadProducts(const std::string& filename) {
-    std::ifstream file(filename);
-    std::string line;
+void Eshop::loadProducts(const string& filename) {
+    ifstream file(filename);
+    string line;
 
     if (!file.is_open()) {
-        std::cerr << "Error opening products file." << std::endl;
+        cerr << "Error opening products file." << endl;
         return;
     }
 
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string title, description, category, subcategory, priceStr, measurementType, amountStr;
-
-        std::getline(ss, title, '@');
-        std::getline(ss, description, '@');
-        std::getline(ss, category, '@');
-        std::getline(ss, subcategory, '@');
-        std::getline(ss, priceStr, '@');
-        std::getline(ss, measurementType, '@');
-        std::getline(ss, amountStr, '@');
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string title, description, category, subcategory, priceStr, measurementType, amountStr;
+        getline(ss, title, '@');
+        getline(ss, description, '@');
+        getline(ss, category, '@');
+        getline(ss, subcategory, '@');
+        getline(ss, priceStr, '@');
+        getline(ss, measurementType, '@');
+        getline(ss, amountStr, '@');
         title = trim(title);
         description = trim(description);
         category = trim(category);
         subcategory = trim(subcategory);
         measurementType = trim(measurementType);
-
-        Product product(title, description, category, subcategory, std::stod(priceStr), measurementType, std::stoi(amountStr));
+        Product product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
         products[title] = &product;
     }
     file.close();
@@ -163,27 +149,27 @@ void Eshop::loadProducts(const std::string& filename) {
 
 void Eshop::saveChanges() {
     int endl_flag = 0;
-    std::ofstream usersFile(Eshop::usersFile);
+    ofstream usersFile(Eshop::usersFile);
     for (auto user: users) {
         if (endl_flag == 0) {
             endl_flag = 1;
         }
         else { 
-            usersFile << std::endl;
+            usersFile << endl;
         }
         usersFile << *(user.second); //overloaded operator<< in User class
     }
     usersFile.close();
-    std::ofstream productsFile(Eshop::productsFile);
+    ofstream productsFile(Eshop::productsFile);
     endl_flag = 0;
     for (auto product : products) {
         if (endl_flag == 0) { // no newline before first product
             endl_flag = 1;
         }
         else { 
-            productsFile << std::endl;
+            productsFile << endl;
         }
-        productsFile << product.second; // overloaded operator<< in Product class
+        productsFile << *(product.second); // overloaded operator<< in Product class
     }
     productsFile.close();
 }

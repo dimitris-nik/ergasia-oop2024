@@ -1,5 +1,4 @@
-#ifndef PRODUCT_H
-#define PRODUCT_H
+#pragma once
 #include <string>
 #include <iostream>
 
@@ -20,5 +19,3 @@ public:
     bool operator<(const Product& other) const; // we need need to overload < operator for the map in Cart
     friend std::ostream& operator<<(std::ostream& os, const Product& product);
 };
-
-#endif

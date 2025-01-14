@@ -1,6 +1,4 @@
-#ifndef ESHOP_H
-#define ESHOP_H
-
+#pragma once
 #include <string>
 #include <vector>
 #include <map>
@@ -14,10 +12,11 @@ class Eshop {
 protected:
     std::map<std::string, User*> users;
     std::map<std::string, Product*> products;
-
     const std::string& productsFile;
     const std::string& usersFile;
     const std::string& categoriesFile;
+    User* login();
+    User* registers();
     void loadUsers(const std::string& filename);
     void loadProducts(const std::string& filename);
     void saveChanges();
@@ -26,5 +25,3 @@ public:
     ~Eshop();
     void run();
 };
-
-#endif

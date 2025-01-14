@@ -1,6 +1,4 @@
-#ifndef CUSTOMER_H
-#define CUSTOMER_H
-
+#pragma once
 #include "User.h"
 #include "Product.h"
 #include "Cart.h"
@@ -12,8 +10,6 @@ public:
     std::string historyFileName;
     Customer(std::string username, std::string password);
     void displayMenu();
-    void executeCommand(int choice);
+    bool executeCommand(int choice);
     
 };
-
-#endif
