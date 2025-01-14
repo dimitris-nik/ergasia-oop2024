@@ -11,15 +11,16 @@ public:
     Cart cart;
     std::string historyFileName;
     Customer(std::string username, std::string password);
-    void displayMenu() override;
-    void searchProduct(const std::vector<Product>& products);
-    void addProductToCart(std::vector<Product>& products);
-    void updateProductInCart(std::vector<Product>& products);
-     void removeProductFromCart();
-    void completeOrder(std::vector<Product>& products);
+    void displayMenu();
+    std::string userType();
+    void executeCommand(int choice);
+    void searchProduct();
+    void addProductToCart();
+    void updateProductInCart();
+    void removeProductFromCart();
+    void completeOrder();
     void viewOrderHistory();
     void viewCart();
-    
 };
 
 #endif

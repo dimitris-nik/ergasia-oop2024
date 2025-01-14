@@ -20,3 +20,11 @@ bool Product::operator<(const Product& other) const {
     // Use title for comparison
     return title < other.title;
 }
+
+std::ostream& operator<<(std::ostream& os, const Product& product) {
+    os << product.title << " @ " << product.description << " @ "
+       << product.category << " @ " << product.subcategory << " @ "
+       << std::fixed << std::setprecision(2) << product.price << " @ "
+       << product.measurementType << " @ " << product.amount;
+    return os;
+}

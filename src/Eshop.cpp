@@ -17,11 +17,93 @@ Eshop::~Eshop(){
 void Eshop::run(){
     loadUsers(usersFile);
     loadProducts(productsFile);
-    for (User* user : users) {
-        std::cout << *user << std::endl;
-    }
-    for (Product& product : products) {
-        product.displayProduct();
+    std::string option;
+    User* currentUser = nullptr;
+    while (true) {
+        std::cout << "Welcome to the e-shop!!!" << std::endl;
+        std::cout << "Do you want to login or register? (enter option): ";
+        std::cin >> option;
+        
+        if (option == "login") {
+
+            std::string username, password;
+            std::cout << "Please enter your username: ";
+            std::cin >> username;
+            std::cout << "Please enter your password: ";
+            std::cin >> password;
+
+            bool loggedIn = false;
+            for (User* user : users) {
+                if (user->checkCredentials(username, password)) {
+                    std::cout << "Welcome " << username << "!" << std::endl;
+                    currentUser = user;
+                    loggedIn = true;
+                    break;
+                }
+            }
+            if (!loggedIn) {
+                std::cout << "Invalid username or password." << std::endl;
+                                continue;
+            }
+        } else if (option == "register") {
+
+            std::string username, password;
+            bool exists = false;
+            while (!exists) {
+                exists = true;
+                std::cout << "Please enter your username: ";
+                std::cin >> username;
+                for(User* user : users){
+                    if(user->checkCredentials(username)){
+                        std::cout << "Username already exists. Please choose another." << std::endl;
+                        exists = false;
+                        break;
+                    }
+                }
+            } 
+            std::cout << "Please enter your password: ";
+            std::cin >> password;
+            std::string isAdminInput;
+            std::cout << "Are you an admin user? (Y/N): ";
+            std::cin >> isAdminInput;
+            bool isAdmin = (isAdminInput == "Y" || isAdminInput == "y");
+
+            if (isAdmin) {
+                auto admin = new Admin(username, password);
+                users.push_back(admin);
+                currentUser = admin;
+                 
+            } else {
+                auto customer = new Customer(username, password);
+                users.push_back(customer);
+                currentUser = customer;                
+            }
+            std::cout << "Thanks for signing up! You are automatically logged-in as " << username << std::endl;
+           
+        }else {
+             std::cout << "Invalid option. Please enter 'login' or 'register'." << std::endl;
+            continue;
+        }
+
+        while (true) {
+            currentUser->displayMenu();
+            int choice;
+            std::cin >> choice;
+            while (choice < 1 || choice > 8) {
+                std::cout << "Invalid choice. Please enter a number between 1 and 8." << std::endl;
+                std::cin >> choice;
+            }
+            if (choice == 7) {
+                break;
+            }
+            else{
+                currentUser->executeCommand(choice);
+            }
+
+        }
+        std::cout << "Goodbye!" << std::endl;
+        saveChanges();
+        break;
     }
     
 }
@@ -83,4 +165,31 @@ void Eshop::loadProducts(const std::string& filename) {
         products.push_back(product);
     }
     file.close();
+}
+
+void Eshop::saveChanges() {
+    int endl_flag = 0;
+    std::ofstream usersFile(Eshop::usersFile);
+    for (const User* user : users) {
+        if (endl_flag == 0) {
+            endl_flag = 1;
+        }
+        else { 
+            usersFile << std::endl;
+        }
+        usersFile << *user; //overloaded operator<< in User class
+    }
+    usersFile.close();
+    std::ofstream productsFile(Eshop::productsFile);
+    endl_flag = 0;
+    for (Product& product : products) {
+        if (endl_flag == 0) { // no newline before first product
+            endl_flag = 1;
+        }
+        else { 
+            productsFile << std::endl;
+        }
+        productsFile << product; // overloaded operator<< in Product class
+    }
+    productsFile.close();
 }

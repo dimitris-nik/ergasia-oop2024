@@ -17,3 +17,11 @@ void Admin::displayMenu() {
     std::cout << "7. Exit" << std::endl;
     std::cout << "Enter your choice: ";
 }
+
+std::string Admin::userType() {
+    return "admin";
+}
+
+void Admin::executeCommand(int choice) {
+    //to be implemented
+}

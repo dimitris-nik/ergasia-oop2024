@@ -20,6 +20,7 @@ protected:
     const std::string& categoriesFile;
     void loadUsers(const std::string& filename);
     void loadProducts(const std::string& filename);
+    void saveChanges();
 public:
     Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile);
     ~Eshop();

@@ -18,6 +18,7 @@ public:
     void displayProduct() const;
 
     bool operator<(const Product& other) const; // we need need to overload < operator for the map in Cart
+    friend std::ostream& operator<<(std::ostream& os, const Product& product);
 };
 
 #endif
