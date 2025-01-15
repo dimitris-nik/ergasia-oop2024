@@ -22,7 +22,7 @@ void Admin::displayMenu() {
 void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
     std::string title, description, categoryStr, subcategoryStr, measurementType;
     Category* productCategory;
-    Category* productSubategory;
+    Category* productSubcategory;
     double price;
     int amount;
 
@@ -39,10 +39,9 @@ void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManage
 
     std::cout << "Give one of the following categories: ";
     categories.displayCategories();
-    
     while(true){
         std::getline(std::cin, categoryStr);
-        Category* productCategory = categories.findCategory(categoryStr);
+        productCategory = categories.findCategory(categoryStr);
         if(productCategory){
             break;
         }
@@ -52,11 +51,14 @@ void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManage
     std::cout << "Give one of the following subcategories: ";
 
     productCategory->displaySubcategories();
-    Category* subCat = nullptr;
-    while(!subCat){
+
+    while(true){
         std::getline(std::cin, subcategoryStr);
-        subCat = productCategory->findSubcategory(subcategoryStr);
-        std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
+        productSubcategory = productCategory->findSubcategory(subcategoryStr);
+        if(productSubcategory){
+            break;
+        }
+        std::cout << "Invalid Category. Please choose from the above." << std::endl;
     }
     std::cout << "Give product price: ";
     std::cin >> price;
@@ -70,9 +72,8 @@ void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManage
     Product * product = new Product(title, description, categoryStr, subcategoryStr, price, measurementType, amount);
     products[title] = product;
     productCategory->addProduct(product);
-    productSubategory->addProduct(product);
-    std::cout << product;
-    std::cout << "Product addedd successfully!" << std::endl;
+    productSubcategory->addProduct(product);
+    std::cout << "Product added successfully!" << std::endl;
 }
 
 void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
@@ -85,7 +86,7 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
         return;
     }
     Product* product = products[title];
-    std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << endl;
+    std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << std::endl;
     int choice;
     std::cin >> choice;
     while (choice < 1 || choice > 6) {
@@ -125,6 +126,8 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
             std::getline(std::cin, newSubcategory);
             product->category = newCategory;
             product->subcategory = newSubcategory;
+            categories.findCategory(product->category)->removeProduct(product);
+            categories.findCategory(newCategory)->addProduct(product);
             break;
         }
         case 4: {
@@ -185,6 +188,15 @@ bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryMa
         }
         case 3: {
             removeProduct(products, categories);
+            break;
+        }
+        case 4: {
+            break;
+        }
+        case 5: {
+            break;
+        }
+        case 6: {
             break;
         }
         case 7: {

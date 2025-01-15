@@ -9,9 +9,9 @@ class Category {
         std::vector<Product*> products;
     public:
         std::string name;
-        Category(std::string name);
+        Category(const std::string & name);
         ~Category();
-        Category* addSubcategory(std::string subcategory);
+        Category* addSubcategory(const std::string& subcategory);
         void displaySubcategories() const;
         void addProduct(Product* product);
         void removeProduct(Product* product);
@@ -25,7 +25,7 @@ class CategoryManager {
     public:
         CategoryManager(const std::string & categoriesFile);
         ~CategoryManager();
-        Category* addCategory(std::string category);
+        Category* addCategory(const std::string & category);
         void displayCategories() const;
         Category* findCategory(const std::string& category) const;
 };

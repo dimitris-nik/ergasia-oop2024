@@ -1,5 +1,4 @@
 #include "../include/Eshop.h"
-#include "../include/utils.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip> // For fixed and setprecision
@@ -152,6 +151,7 @@ void Eshop::loadProducts() {
 void Eshop::saveChanges() {
     int endl_flag = 0;
     ofstream usersFile(Eshop::usersFile);
+    
     for (auto user: users) {
         if (endl_flag == 0) {
             endl_flag = 1;

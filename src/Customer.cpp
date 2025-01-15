@@ -26,7 +26,7 @@ void Customer::displayMenu() {
     std::cout << "Enter your choice: ";
 } 
 
-bool Customer::executeCommand(std::map<std::string, Product*>& products, std::vector<Category*>& categories) {
+bool Customer::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories) {
     int choice;
     std::cin >> choice;
     while (choice < 1 || choice > 8) {

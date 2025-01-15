@@ -8,6 +8,7 @@
 #include "Admin.h"
 #include "Product.h"
 #include "Category.h"
+#include "utils.h"
 
 class Eshop {
 protected:

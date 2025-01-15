@@ -1,9 +1,15 @@
 #include "../include/Category.h"
+#include "../include/utils.h"
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 
-Category::Category(std::string name) : name(name) {}
+Category::Category(const std::string& name) : name(name) {
+    subcategories = std::vector<Category*>();
+    products = std::vector<Product*>();
+}
 
 Category::~Category(){
     for (auto& subcategory : subcategories) {
@@ -11,7 +17,7 @@ Category::~Category(){
     }
 }
 
-Category* Category::addSubcategory(std::string subcategory){
+Category* Category::addSubcategory(const std::string& subcategory){
     Category* newSubcategory = new Category(subcategory);
     subcategories.push_back(newSubcategory);
     return newSubcategory;
@@ -36,8 +42,8 @@ void Category::removeProduct(Product* product){
 }
 
 void Category::displaySubcategories() const{
-    for (const auto& subcategory : subcategories) {
-        std::cout << subcategory->name << " ";
+    for (const auto& subcat : subcategories) {
+        std::cout << subcat->name << " ";
     }
     std::cout << std::endl;
 }
@@ -57,8 +63,8 @@ Category* Category::findSubcategory(const std::string& subcategory) const{
     return nullptr;
 }
 
-Category* CategoryManager::addCategory(std::string subcategory){
-    Category* newCategory = new Category(subcategory);
+Category* CategoryManager::addCategory(const std::string & category){
+    Category* newCategory = new Category(category);
     categories.push_back(newCategory);
     return newCategory;
 }
@@ -93,7 +99,7 @@ CategoryManager::CategoryManager(const std::string & categoriesFile){
     file.close();
 }
 
-~CategoryManager(){
+CategoryManager::~CategoryManager(){
     for (auto& category : categories) {
         delete category;
     }
