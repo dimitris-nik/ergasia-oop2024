@@ -147,6 +147,21 @@ void Eshop::loadProducts() {
     file.close();
 }
 
+void Eshop::loadHistories() {
+    ifstream file("history.txt");
+    string line;
+
+    if (!file.is_open()) {
+        cerr << "Error opening history file." << endl;
+        return;
+    }
+
+    while (getline(file, line)) {
+        cout << line << endl;
+    }
+    file.close();
+}
+
 void Eshop::saveChanges() {
     int endl_flag = 0;
     ofstream usersFile(Eshop::usersFile);

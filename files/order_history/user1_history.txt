@@ -9,3 +9,9 @@ Total Cost: 40
 1 Laptop
 ---CART 2 END---
 Total Cost: 1200
+
+---CART START---
+400 Dummy Product
+---CART END---
+Total Cost: 239600.00
+

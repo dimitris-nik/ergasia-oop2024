@@ -266,6 +266,21 @@ void Admin::showUnavailableProducts(std::map<std::string, Product*>& products) {
     if(!found) std::cout << "No unavailable products." << std::endl;
 }
 
+void Admin::showTopProducts(std::map<std::string, Product*>& products) {
+    std::cout << "Top 5 Products:" << std::endl;
+    std::vector<Product*> sortedProducts;
+    for (const auto& product : products) {
+        sortedProducts.push_back(product.second);
+    }
+    std::sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
+        return a->amount > b->amount;
+    });
+    for (int i = 0; i < 5 && i < sortedProducts.size(); i++) {
+        sortedProducts[i]->displayProduct();
+        std::cout << "Times appeared in orders: " << sortedProducts[i]->appearedInCart << std::endl;
+    }
+}
+
 
 
 bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories){
@@ -297,7 +312,7 @@ bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryMa
             break;
         }
         case 6: {
-            //showTopProducts(products);
+            showTopProducts(products);
             break;
         }
         case 7: {

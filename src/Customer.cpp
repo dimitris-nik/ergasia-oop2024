@@ -115,7 +115,7 @@ void Customer::addProductToCart(std::map<std::string, Product*>& products) {
     if (product != products.end()) {
         productFound = true;
         if (product->second->amount >= quantity) {
-            cart.addProduct(*product->second, quantity);
+            cart.addProduct(product->second, quantity);
         } else {
             if (product->second->amount == 0) {
                 std::cout << "Product out of stock!" << std::endl;
@@ -124,7 +124,7 @@ void Customer::addProductToCart(std::map<std::string, Product*>& products) {
                 std::string answer;
                 std::cin >> answer;
                 if (answer == "y") {
-                    cart.addProduct(*product->second, product->second->amount);
+                    cart.addProduct(product->second, product->second->amount);
                     productFound = true;
                 }
                 else {
@@ -146,7 +146,7 @@ void Customer::removeProductFromCart(std::map<std::string, Product*>& products) 
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
     if (products.find(title) != products.end()) {
-        cart.removeProduct(*products[title]);
+        cart.removeProduct(products[title]);
     } else {
         std::cout << "Product does not exist!" << std::endl;
     }
@@ -171,10 +171,10 @@ void Customer::updateProductInCart(std::map<std::string, Product*>& products) {
     if (product != products.end()) {
         productFound = true;
         if (quantity == 0) {
-            cart.removeProduct(*product->second);
+            cart.removeProduct(product->second);
         } else {
             if (product->second->amount >= quantity) {
-                cart.updateProduct(*product->second, quantity);
+                cart.updateProduct(product->second, quantity);
             } else {
                 std::cout << "Not enough available" << std::endl;
             }
@@ -192,10 +192,11 @@ void Customer::completeOrder(){
         std::cerr << "Error opening history file." << std::endl;
         return;
     }
+    historyFile << std::endl << std::endl;
     historyFile << cart;
     historyFile.close();
     
-    cart.clearCart();    
+    cart.checkout();    
     std::cout << "Order completed!" << std::endl;
 }
 

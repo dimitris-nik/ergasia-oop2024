@@ -16,10 +16,6 @@ void Product::displayProduct() const {
     std::cout << "Total " << (measurementType == "Kg" ? "Kg" : "units") << " available: " << amount << std::endl;
 }
 
-bool Product::operator<(const Product& other) const { 
-    // need to overload < operator for the map in Cart
-    return title < other.title;
-}
 
 std::ostream& operator<<(std::ostream& os, const Product& product) { 
     //overload operator << in Product class to save products to file

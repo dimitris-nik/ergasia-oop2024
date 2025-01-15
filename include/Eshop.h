@@ -22,6 +22,7 @@ protected:
     void loadUsers();
     void loadProducts();
     void loadCategories();
+    void loadHistories();
     void saveChanges();
 public:
     Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile);

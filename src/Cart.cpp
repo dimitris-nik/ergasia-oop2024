@@ -2,10 +2,10 @@
 #include <iostream>
 #include <iomanip>
 
-void Cart::addProduct(Product& product, int quantity) {
+void Cart::addProduct(Product* product, int quantity) {
     items[product] += quantity;
 }
-void Cart::removeProduct(Product& product){
+void Cart::removeProduct(Product* product){
     if (items.find(product) != items.end()) {
         items.erase(product);
         std::cout << "Product removed!" << std::endl;
@@ -14,12 +14,21 @@ void Cart::removeProduct(Product& product){
         std::cout << "Product not found in cart!" << std::endl;
     }
 }
-void Cart::updateProduct(Product& product, int quantity){
+void Cart::updateProduct(Product* product, int quantity){
     items[product] = quantity;
 }
 
 void Cart::clearCart() {
     items.clear();
+}
+
+void Cart::checkout() {
+    for (const auto& item : items) {
+        item.first->amount -= item.second;
+        item.first->appearedInCart += 1;
+    }
+    clearCart();
+    std::cout << "Order completed!" << std::endl;
 }
 /*
 std::cout << std::endl;
@@ -36,8 +45,8 @@ std::ostream& operator<<(std::ostream& os, const Cart& cart) {
     os << "---CART START---" << std::endl;
     double totalCost = 0;
     for (const auto& item : cart.items) {
-        os << item.second << " " << item.first.title << std::endl;
-        totalCost += item.first.price * item.second;
+        os << item.second << " " << item.first->title << std::endl;
+        totalCost += item.first->price * item.second;
     }
     os << "---CART END---" << std::endl;
     os << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;
