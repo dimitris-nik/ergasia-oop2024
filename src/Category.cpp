@@ -36,8 +36,9 @@ void Category::removeProduct(Product* product){
 
 void Category::displaySubcategories() const{
     for (const auto& subcategory : subcategories) {
-        std::cout << subcategory->name << std::endl;
+        std::cout << subcategory->name << " ";
     }
+    std::cout << std::endl;
 }
 
 void Category::displayProducts() const{

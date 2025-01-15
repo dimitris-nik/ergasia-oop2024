@@ -19,7 +19,7 @@ void Admin::displayMenu() {
     std::cout << "Enter your choice: ";
 }
 
-void Admin::addProduct(std::map<std::string, Product*> products, std::vector<Category*>& categories){
+void Admin::addProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
     std::string title, description, category, subcategory, measurementType;
     Category* productCategory;
     Category* productSubategory;
@@ -55,9 +55,7 @@ void Admin::addProduct(std::map<std::string, Product*> products, std::vector<Cat
 
     std::cout << "Give one of the following subcategories: ";
 
-    for (const auto& cat : categories) {
-        cat->displaySubcategories();
-    }
+    productCategory->displaySubcategories();
     
     while(true){
         std::getline(std::cin, subcategory);
@@ -79,20 +77,23 @@ void Admin::addProduct(std::map<std::string, Product*> products, std::vector<Cat
     std::cout << "Give product price: ";
     std::cin >> price;
 
-    std::cout << "Give product amount: ";
-    std::cin >> amount;
-
     std::cout << "Give product measurement type: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, measurementType);
+
+    std::cout << "Give product amount: ";
+    std::cin >> amount;
+
     Product * product = new Product(title, description, category, subcategory, price, measurementType, amount);
     products[title] = product;
     productCategory->addProduct(product);
     productSubategory->addProduct(product);
+    std::cout << product;
+    std::cout << "Product addedd successfully!" << std::endl;
     
 }
 
-void Admin::editProduct(std::map<std::string, Product*> products, std::vector<Category*>& categories){
+void Admin::editProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to edit: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -129,7 +130,7 @@ void Admin::editProduct(std::map<std::string, Product*> products, std::vector<Ca
     product->measurementType = newMeasurementType;
 }
 
-void Admin::removeProduct(std::map<std::string, Product*> products, std::vector<Category*>& categories){
+void Admin::removeProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to remove: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -167,6 +168,9 @@ bool Admin::executeCommand(std::map<std::string, Product*>& products, std::vecto
         case 3: {
             removeProduct(products, categories);
             break;
+        }
+        case 7: {
+            return false;
         }
         default: {
             std::cout << "Invalid Option." << std::endl;

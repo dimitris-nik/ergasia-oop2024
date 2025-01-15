@@ -142,8 +142,8 @@ void Eshop::loadProducts() {
         category = trim(category);
         subcategory = trim(subcategory);
         measurementType = trim(measurementType);
-        Product product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
-        products[title] = &product;
+        Product * product= new Product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
+        products[title] = product;
     }
     file.close();
 }
@@ -173,7 +173,7 @@ void Eshop::loadCategories() {
             std::string subcategory;
 
             while (std::getline(subcats, subcategory, '@')) {
-                category->addSubcategory(subcategory);
+                category->addSubcategory(trim(subcategory));
             }
         }
         categories.push_back(category);
