@@ -141,8 +141,7 @@ void Eshop::loadProducts() {
         subcategory = trim(subcategory);
         measurementType = trim(measurementType);
         Product * product= new Product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
-        categories.findCategory(category)->addProduct(product);
-        categories.findCategory(category)->findSubcategory(subcategory)->addProduct(product);
+        categories.addProduct(product, category, subcategory);
         products[title] = product;
     }
     file.close();

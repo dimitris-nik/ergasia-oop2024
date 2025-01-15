@@ -120,3 +120,26 @@ Category* CategoryManager::findCategory(const std::string& category) const{
     }
     return nullptr;
 }
+
+void CategoryManager::addProduct(Product* product, const std::string& category, const std::string& subcategory){
+    Category* cat = findCategory(category);
+    if (cat == nullptr) {
+        cat = addCategory(category);
+    }
+    Category* subcat = cat->findSubcategory(subcategory);
+    cat->addProduct(product);
+    if (subcat == nullptr) {
+        subcat = cat->addSubcategory(subcategory);
+    }
+    subcat->addProduct(product);
+}
+
+void CategoryManager::removeProduct(Product* product){
+    std::string category = product->category;
+    for (auto& cat : categories) {
+        if (cat->name == category) {
+            cat->removeProduct(product);
+            break;
+        }
+    }
+}
