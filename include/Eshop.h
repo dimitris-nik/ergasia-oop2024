@@ -13,10 +13,9 @@ class Eshop {
 protected:
     std::map<std::string, User*> users;
     std::map<std::string, Product*> products;
-    std::vector<Category*> categories;
+    CategoryManager categories;
     const std::string& productsFile;
     const std::string& usersFile;
-    const std::string& categoriesFile;
     User* login();
     User* registers();
     void loadUsers();

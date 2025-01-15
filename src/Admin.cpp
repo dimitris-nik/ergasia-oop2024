@@ -19,8 +19,8 @@ void Admin::displayMenu() {
     std::cout << "Enter your choice: ";
 }
 
-void Admin::addProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
-    std::string title, description, category, subcategory, measurementType;
+void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+    std::string title, description, categoryStr, subcategoryStr, measurementType;
     Category* productCategory;
     Category* productSubategory;
     double price;
@@ -29,54 +29,37 @@ void Admin::addProduct(std::map<std::string, Product*>& products, std::vector<Ca
     std::cout << "Give product title: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
+    while(products.find(title) != products.end()){
+        std::cout << "Product with this title already exists. Please enter a different title: ";
+        std::getline(std::cin, title);
+    }
 
     std::cout << "Give product description: ";
     std::getline(std::cin, description);
 
     std::cout << "Give one of the following categories: ";
-    for (const auto& cat : categories) {
-        std::cout << cat->name << " ";
-    }
-    std::cout << std::endl;
+    categories.displayCategories();
     
     while(true){
-        std::getline(std::cin, category);
-        bool categoryExists = false;
-        for(const auto& cat : categories){
-            if(cat->name == category){
-                categoryExists = true;
-                productCategory = cat;
-                break;
-            }
+        std::getline(std::cin, categoryStr);
+        Category* productCategory = categories.findCategory(categoryStr);
+        if(productCategory){
+            break;
         }
-        if(categoryExists) break;
         std::cout << "Invalid Category. Please choose from the above." << std::endl;
     }
 
     std::cout << "Give one of the following subcategories: ";
 
     productCategory->displaySubcategories();
-    
-    while(true){
-        std::getline(std::cin, subcategory);
-        bool subCategoryExists = false;
-        for (const auto& cat : categories) {
-            if (cat->name == category) {
-                if(cat->findSubcategory(subcategory)){
-                    subCategoryExists = true;
-                    productSubategory = cat;
-                    break;
-                }
-            }
-            if(subCategoryExists) break;
-        }
-        if(subCategoryExists) break;
+    Category* subCat = nullptr;
+    while(!subCat){
+        std::getline(std::cin, subcategoryStr);
+        subCat = productCategory->findSubcategory(subcategoryStr);
         std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
     }
-
     std::cout << "Give product price: ";
     std::cin >> price;
-
     std::cout << "Give product measurement type: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, measurementType);
@@ -84,16 +67,15 @@ void Admin::addProduct(std::map<std::string, Product*>& products, std::vector<Ca
     std::cout << "Give product amount: ";
     std::cin >> amount;
 
-    Product * product = new Product(title, description, category, subcategory, price, measurementType, amount);
+    Product * product = new Product(title, description, categoryStr, subcategoryStr, price, measurementType, amount);
     products[title] = product;
     productCategory->addProduct(product);
     productSubategory->addProduct(product);
     std::cout << product;
     std::cout << "Product addedd successfully!" << std::endl;
-    
 }
 
-void Admin::editProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
+void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to edit: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -103,34 +85,74 @@ void Admin::editProduct(std::map<std::string, Product*>& products, std::vector<C
         return;
     }
     Product* product = products[title];
-    std::string newTitle, newDescription, newCategory, newSubcategory, newMeasurementType;
-    double newPrice;
-    int newAmount;
-    std::cout << "Enter new title: ";
-    std::getline(std::cin, newTitle);
-    std::cout << "Enter new description: ";
-    std::getline(std::cin, newDescription);
-    std::cout << "Enter new category: ";
-    std::getline(std::cin, newCategory);
-    std::cout << "Enter new subcategory: ";
-    std::getline(std::cin, newSubcategory);
-    std::cout << "Enter new price: ";
-    std::cin >> newPrice;
-    std::cout << "Enter new amount: ";
-    std::cin >> newAmount;
-    std::cout << "Enter new measurement type: ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, newMeasurementType);
-    product->title = newTitle;
-    product->description = newDescription;
-    product->category = newCategory;
-    product->subcategory = newSubcategory;
-    product->price = newPrice;
-    product->amount = newAmount;
-    product->measurementType = newMeasurementType;
+    std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << endl;
+    int choice;
+    std::cin >> choice;
+    while (choice < 1 || choice > 6) {
+        std::cout << "Invalid Option. Please enter a number between 1 and 6: ";
+        std::cin >> choice;
+    }
+    switch(choice){
+        case 1: {
+            std::string newTitle;
+            std::cout << "Enter new title: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, newTitle);
+            while (products.find(newTitle) != products.end()) {
+                std::cout << "Product with this title already exists. Please enter a different title: ";
+                std::getline(std::cin, newTitle);
+            }
+            products.erase(title);
+            product->title = newTitle;
+            products[newTitle] = product;
+            break;
+        }
+        case 2: {
+            std::string newDescription;
+            std::cout << "Enter new description: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, newDescription);
+            product->description = newDescription;
+            break;
+        }
+        case 3: {
+            std::string newCategory;
+            std::string newSubcategory;
+            std::cout << "Enter new category: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, newCategory);
+            std::cout << "Enter new subcategory: ";
+            std::getline(std::cin, newSubcategory);
+            product->category = newCategory;
+            product->subcategory = newSubcategory;
+            break;
+        }
+        case 4: {
+            double newPrice;
+            std::cout << "Enter new price: ";
+            std::cin >> newPrice;
+            product->price = newPrice;
+            break;
+        }
+        case 5: {
+            int newAmount;
+            std::cout << "Enter new amount: ";
+            std::cin >> newAmount;
+            product->amount = newAmount;
+            break;
+        }
+        case 6: {
+            break;
+        }
+        default: {
+            std::cout << "Invalid Option." << std::endl;
+            break;
+        }
+    }
+
 }
 
-void Admin::removeProduct(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
+void Admin::removeProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to remove: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -141,15 +163,11 @@ void Admin::removeProduct(std::map<std::string, Product*>& products, std::vector
     }
     Product* product = products[title];
     products.erase(title);
-    for (const auto& cat : categories) {
-        if (cat->name == product->category) {
-            cat->removeProduct(product);
-        }
-    }
+    categories.findCategory(product->category)->removeProduct(product);
     delete product;
 }
 
-bool Admin::executeCommand(std::map<std::string, Product*>& products, std::vector<Category*>& categories){
+bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories){
     int choice;
     std::cin >> choice;
     while (choice < 1 || choice > 7) {
