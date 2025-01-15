@@ -6,8 +6,9 @@
 using namespace std;
 
 Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile) {
-    loadUsers(usersFile);
-    loadProducts(productsFile);
+    loadUsers();
+    loadProducts();
+    loadCategories();
 }
 
 Eshop::~Eshop(){
@@ -84,7 +85,7 @@ void Eshop::run(){
         currentUser = registers();
     }
     currentUser->displayMenu();
-    while (currentUser->executeCommand()) {
+    while (currentUser->executeCommand(products, categories)) {
         currentUser->displayMenu();
     }
     cout << "Goodbye!" << endl;
@@ -92,8 +93,8 @@ void Eshop::run(){
     
 }
 
-void Eshop::loadUsers(const string& filename) {
-    ifstream file(filename);
+void Eshop::loadUsers() {
+    ifstream file(usersFile);
     string line;
 
     if (!file.is_open()) {
@@ -117,8 +118,8 @@ void Eshop::loadUsers(const string& filename) {
     file.close();
 }
 
-void Eshop::loadProducts(const string& filename) {
-    ifstream file(filename);
+void Eshop::loadProducts() {
+    ifstream file(productsFile);
     string line;
 
     if (!file.is_open()) {
@@ -143,6 +144,40 @@ void Eshop::loadProducts(const string& filename) {
         measurementType = trim(measurementType);
         Product product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
         products[title] = &product;
+    }
+    file.close();
+}
+
+void Eshop::loadCategories() {
+    std::ifstream file(categoriesFile);
+    std::string line;
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening category file." << std::endl;
+        return;
+    }
+
+    while (std::getline(file, line)) {
+        //printf("Line: %s\n", line.c_str());
+        std::stringstream ss(line);
+        std::string categoryName;
+        std::string subcategoriesLine;
+
+        std::getline(ss, categoryName, '(');
+        categoryName = trim(categoryName);
+
+        Category* category = new Category(categoryName);
+
+        if (std::getline(ss, subcategoriesLine, ')')) {
+            std::stringstream subcats(subcategoriesLine);
+            std::string subcategory;
+
+            while (std::getline(subcats, subcategory, '@')) {
+                category->addSubcategory(subcategory);
+            }
+        }
+        categories.push_back(category);
+        //printf("Category %s loaded\n", category->name.c_str());
     }
     file.close();
 }

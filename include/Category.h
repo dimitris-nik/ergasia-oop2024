@@ -1,17 +1,21 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "Product.h"
 
 class Category {
     private:
-        vector<Category*> subcategories;
-        vector<Product*> products;
+        std::vector<Category*> subcategories;
+        std::vector<Product*> products;
     public:
         std::string name;
         Category(std::string name);
-        void addSubcategory(Category* subcategory);
+        ~Category();
+        void addSubcategory(std::string subcategory);
         void displaySubcategories() const;
         void addProduct(Product* product);
+        void removeProduct(Product* product);
         void displayProducts() const;
+        Category* findSubcategory(const std::string& subcategory) const;
 
-}
+};

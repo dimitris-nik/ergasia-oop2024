@@ -1,4 +1,5 @@
 #include "../include/Customer.h"
+#include "../include/Category.h"
 #include <iostream>
 #include <limits>
 #include <fstream>
@@ -25,6 +26,18 @@ void Customer::displayMenu() {
     std::cout << "Enter your choice: ";
 } 
 
-bool Customer::executeCommand(int choice) {
-    // to be implemented
+bool Customer::executeCommand(std::map<std::string, Product*>& products, std::vector<Category*>& categories) {
+    int choice;
+    std::cin >> choice;
+    while (choice < 1 || choice > 8) {
+        std::cout << "Invalid Option. Please enter a number between 1 and 8: ";
+        std::cin >> choice;
+    }
+    switch(choice){
+        default: {
+            std::cout << "Invalid Option." << std::endl;
+            break;
+        }
+    }
+    return true;
 }
