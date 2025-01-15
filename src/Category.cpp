@@ -50,7 +50,7 @@ void Category::displaySubcategories() const{
 
 void Category::displayProducts() const{
     for (const auto& product : products) {
-        std::cout << "\"" << product->title << "\" ";
+        std::cout << "\"" << product->getTitle() << "\" ";
     }
     std::cout << std::endl;
 }
@@ -138,6 +138,6 @@ void CategoryManager::addProduct(Product* product, const std::string& category, 
 }
 
 void CategoryManager::removeProduct(Product* product){
-    std::string category = product->category;
+    std::string category = product->getCategory();
     findCategory(category)->removeProduct(product);
 }

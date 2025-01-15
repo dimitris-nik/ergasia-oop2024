@@ -24,8 +24,8 @@ void Cart::clearCart() {
 
 void Cart::checkout() {
     for (const auto& item : items) {
-        item.first->amount -= item.second;
-        item.first->appearedInCart += 1;
+        item.first->setAmount(item.first->getAmount() - item.second);
+        item.first->increaseAppearedInCart();
     }
     clearCart();
     std::cout << "Order completed!" << std::endl;
@@ -45,8 +45,8 @@ std::ostream& operator<<(std::ostream& os, const Cart& cart) {
     os << "---CART START---" << std::endl;
     double totalCost = 0;
     for (const auto& item : cart.items) {
-        os << item.second << " " << item.first->title << std::endl;
-        totalCost += item.first->price * item.second;
+        os << item.second << " " << item.first->getTitle() << std::endl;
+        totalCost += item.first->getPrice() * item.second;
     }
     os << "---CART END---" << std::endl;
     os << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;

@@ -26,7 +26,7 @@ void Customer::displayMenu() {
     std::cout << "Enter your choice: ";
 } 
 
-void Customer::searchProduct(std::map<std::string, Product*> products, CategoryManager& categories) {
+void Customer::searchProduct(ProductManager products, CategoryManager& categories) {
     std::cout << "1. Search for a specific product (by title)." << std::endl;
     std::cout << "2. View the products of a specific category." << std::endl;
     std::cout << "3. Show all the available products." << std::endl;
@@ -43,8 +43,8 @@ void Customer::searchProduct(std::map<std::string, Product*> products, CategoryM
             std::cout << "Enter title to search: ";
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, titleSearch);
-            if (products.find(titleSearch) != products.end()) {
-                products[titleSearch]->displayProduct();
+            if (products.findProduct(titleSearch)) {
+                products.findProduct(titleSearch)->displayProduct();
             } else {
                 std::cout << "Product not found." << std::endl;
             }
@@ -78,19 +78,16 @@ void Customer::searchProduct(std::map<std::string, Product*> products, CategoryM
         }
         case 3: {
             std::cout << "Results: ";
-            for (const auto& product : products) {
-                std::cout << "\"" << product.first << "\" ";
-            }
-            std::cout << std::endl;
+            products.displayProducts();
             std::cout << "Select a product title: ";
             std::string selectedTitle;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, selectedTitle);
-            while (products.find(selectedTitle) == products.end()) {
+            while (!products.findProduct(selectedTitle)) {
                 std::cout << "Invalid Product. Please choose from the above." << std::endl;
                 std::getline(std::cin, selectedTitle);
             }
-            products[selectedTitle]->displayProduct();
+            products.findProduct(selectedTitle)->displayProduct();
             break;
         }
         default: {
@@ -100,7 +97,7 @@ void Customer::searchProduct(std::map<std::string, Product*> products, CategoryM
     }
 }
 
-void Customer::addProductToCart(std::map<std::string, Product*>& products) {
+void Customer::addProductToCart(ProductManager& products) {
     std::string title;
     int quantity;
 
@@ -111,44 +108,42 @@ void Customer::addProductToCart(std::map<std::string, Product*>& products) {
     std::cin >> quantity;
 
     bool productFound = false;
-    auto product = products.find(title);
-    if (product != products.end()) {
-        productFound = true;
-        if (product->second->amount >= quantity) {
-            cart.addProduct(product->second, quantity);
-        } else {
-            if (product->second->amount == 0) {
-                std::cout << "Product out of stock!" << std::endl;
-            } else {
-                std::cout << "Not enough available, add " << product->second->amount << " to cart instead? (y/n)" << std::endl;
-                std::string answer;
-                std::cin >> answer;
-                if (answer == "y") {
-                    cart.addProduct(product->second, product->second->amount);
-                    productFound = true;
-                }
-                else {
-                    return;
-                }
-            }
-            
-        }
-    }
-
-    if (!productFound) {
+    auto product = products.findProduct(title);
+    if (product == nullptr) {
         std::cout << "Product not found!" << std::endl;
+        return;
+    }
+    if (product->getAmount() >= quantity) {
+        cart.addProduct(product, quantity);
+    } else {
+        if (product->getAmount() == 0) {
+            std::cout << "Product out of stock!" << std::endl;
+        } else {
+            std::cout << "Not enough available, add " << product->getAmount() << " to cart instead? (y/n)" << std::endl;
+            std::string answer;
+            std::cin >> answer;
+            if (answer == "y") {
+                cart.addProduct(product, product->getAmount());
+                productFound = true;
+            }
+            else {
+                return;
+            }
+        }
+        
     }
 }
 
-void Customer::removeProductFromCart(std::map<std::string, Product*>& products) {
+void Customer::removeProductFromCart(ProductManager& products) {
     std::string title;
     std::cout << "Which product do you want to remove from your cart? ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    if (products.find(title) != products.end()) {
-        cart.removeProduct(products[title]);
+// !!!???
+    if (products.findProduct(title)) {
+        cart.removeProduct(products.findProduct(title));
     } else {
-        std::cout << "Product does not exist!" << std::endl;
+        std::cout << "Product does not exist." << std::endl;
     }
 }
 
@@ -156,7 +151,7 @@ void Customer::viewCart() {
     std::cout << cart;
 }
 
-void Customer::updateProductInCart(std::map<std::string, Product*>& products) {
+void Customer::updateProductInCart(ProductManager& products) {
     std::string title;
     int quantity;
 
@@ -167,22 +162,28 @@ void Customer::updateProductInCart(std::map<std::string, Product*>& products) {
     std::cin >> quantity;
 
     bool productFound = false;
-    auto product = products.find(title);
-    if (product != products.end()) {
-        productFound = true;
-        if (quantity == 0) {
-            cart.removeProduct(product->second);
-        } else {
-            if (product->second->amount >= quantity) {
-                cart.updateProduct(product->second, quantity);
-            } else {
-                std::cout << "Not enough available" << std::endl;
-            }
-        }
+    auto product = products.findProduct(title);
+    if (product == nullptr) {
+        std::cout << "Product not found!" << std::endl;
+        return;
     }
-
-    if (!productFound) {
-        std::cout << "Product not found in cart!" << std::endl;
+    if (product->getAmount() >= quantity) {
+        cart.updateProduct(product, quantity);
+    } else {
+        if (product->getAmount() == 0) {
+            std::cout << "Product out of stock!" << std::endl;
+        } else {
+            std::cout << "Not enough available, add " << product->getAmount() << " to cart instead? (y/n)" << std::endl;
+            std::string answer;
+            std::cin >> answer;
+            if (answer == "y") {
+                cart.updateProduct(product, product->getAmount());
+                productFound = true;
+            }
+            else {
+                return;
+            }
+        }   
     }
 }
 
@@ -213,7 +214,7 @@ void Customer::viewOrderHistory(){
     historyFile.close();
 }
 
-bool Customer::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories) {
+bool Customer::executeCommand(ProductManager& products, CategoryManager& categories) {
     int choice;
     std::cin >> choice;
     while (choice < 1 || choice > 8) {
