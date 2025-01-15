@@ -19,7 +19,7 @@ void Admin::displayMenu() {
     std::cout << "Enter your choice: ";
 }
 
-void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+void Admin::addProduct(ProductManager& products, CategoryManager& categories){
     std::string title, description, categoryStr, subcategoryStr, measurementType;
     Category* productCategory;
     Category* productSubcategory;
@@ -29,11 +29,10 @@ void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManage
     std::cout << "Give product title: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    while(products.find(title) != products.end()){
+    while(products.findProduct(title)){
         std::cout << "Product with this title already exists. Please enter a different title: ";
         std::getline(std::cin, title);
     }
-
     std::cout << "Give product description: ";
     std::getline(std::cin, description);
 
@@ -67,21 +66,21 @@ void Admin::addProduct(std::map<std::string, Product*>& products, CategoryManage
     std::cin >> amount;
 
     Product * product = new Product(title, description, categoryStr, subcategoryStr, price, measurementType, amount);
-    products[title] = product;
+    products.addProduct(product);
     categories.addProduct(product, categoryStr, subcategoryStr);
     std::cout << "Product added successfully!" << std::endl;
 }
 
-void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+void Admin::editProduct(ProductManager& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to edit: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    if(products.find(title) == products.end()){
+    if(products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
     }
-    Product* product = products[title];
+    Product* product = products.findProduct(title);
     std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << std::endl;
     int choice;
     std::cin >> choice;
@@ -95,13 +94,13 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
             std::cout << "Enter new title: ";
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, newTitle);
-            while (products.find(newTitle) != products.end()) {
+            while (products.findProduct(newTitle)) {
                 std::cout << "Product with this title already exists. Please enter a different title: ";
                 std::getline(std::cin, newTitle);
             }
-            products.erase(title);
-            product->title = newTitle;
-            products[newTitle] = product;
+            products.removeProduct(product->getTitle());
+            product->setTitle(newTitle);
+            products.addProduct(product);
             break;
         }
         case 2: {
@@ -109,7 +108,7 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
             std::cout << "Enter new description: ";
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, newDescription);
-            product->description = newDescription;
+            product->setDescription(newDescription);
             break;
         }
         case 3: {
@@ -131,8 +130,8 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
                 std::getline(std::cin, newSubcategory);
             }
             categories.removeProduct(product);
-            product->category = newCategory;
-            product->subcategory = newSubcategory;
+            product->setCategory(newCategory);
+            product->setSubcategory(newSubcategory);
             categories.addProduct(product, newCategory, newSubcategory);
             break;
         }
@@ -140,14 +139,14 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
             double newPrice;
             std::cout << "Enter new price: ";
             std::cin >> newPrice;
-            product->price = newPrice;
+            product->setPrice(newPrice);
             break;
         }
         case 5: {
             int newAmount;
             std::cout << "Enter new amount: ";
             std::cin >> newAmount;
-            product->amount = newAmount;
+            product->setAmount(newAmount);
             break;
         }
         case 6: {
@@ -162,23 +161,23 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
 
 }
 
-void Admin::removeProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+void Admin::removeProduct(ProductManager& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to remove: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    if(products.find(title) == products.end()){
+    if(products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
     }
-    Product* product = products[title];
-    products.erase(title);
-    categories.removeProduct(product);
+    Product* product = products.findProduct(title);
+    categories.removeProduct(product); // Ligo periergo alla dax
+    products.removeProduct(title);
     delete product;
 }
 
 
-void Admin::searchProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+void Admin::searchProduct(ProductManager& products, CategoryManager& categories){
     std::cout << "1. Search for a specific product (by title)." << std::endl;
     std::cout << "2. View the products of a specific category." << std::endl;
     std::cout << "3. Show all the available products." << std::endl;
@@ -195,8 +194,8 @@ void Admin::searchProduct(std::map<std::string, Product*>& products, CategoryMan
             std::cout << "Enter title to search: ";
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, titleSearch);
-            if (products.find(titleSearch) != products.end()) {
-                products[titleSearch]->displayProduct();
+            if (products.findProduct(titleSearch)) {
+                products.findProduct(titleSearch)->displayProduct();
             } else {
                 std::cout << "Product not found." << std::endl;
             }
@@ -231,19 +230,17 @@ void Admin::searchProduct(std::map<std::string, Product*>& products, CategoryMan
         }
         case 3: {
             std::cout << "Results: ";
-            for (const auto& product : products) {
-                std::cout << "\"" << product.first << "\" ";
-            }
+            products.displayProducts();
             std::cout << std::endl;
             std::cout << "Select a product title: ";
             std::string selectedTitle;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(std::cin, selectedTitle);
-            while (products.find(selectedTitle) == products.end()) {
+            while (!products.findProduct(selectedTitle)) {
                 std::cout << "Invalid Product. Please choose from the above." << std::endl;
                 std::getline(std::cin, selectedTitle);
             }
-            products[selectedTitle]->displayProduct();
+            products.findProduct(selectedTitle)->displayProduct();
             break;
         }
         default: {
@@ -254,36 +251,8 @@ void Admin::searchProduct(std::map<std::string, Product*>& products, CategoryMan
 
 }
 
-void Admin::showUnavailableProducts(std::map<std::string, Product*>& products) {
-    std::cout << "Unavailable Products:" << std::endl;
-    bool found = false;
-    for (auto product : products) {
-        if (product.second->amount == 0) {
-            product.second->displayProduct();
-            found = true;
-        }
-    }
-    if(!found) std::cout << "No unavailable products." << std::endl;
-}
 
-void Admin::showTopProducts(std::map<std::string, Product*>& products) {
-    std::cout << "Top 5 Products:" << std::endl;
-    std::vector<Product*> sortedProducts;
-    for (const auto& product : products) {
-        sortedProducts.push_back(product.second);
-    }
-    std::sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
-        return a->amount > b->amount;
-    });
-    for (int i = 0; i < 5 && i < sortedProducts.size(); i++) {
-        sortedProducts[i]->displayProduct();
-        std::cout << "Times appeared in orders: " << sortedProducts[i]->appearedInCart << std::endl;
-    }
-}
-
-
-
-bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories){
+bool Admin::executeCommand(ProductManager& products, CategoryManager& categories){
     int choice;
     std::cin >> choice;
     while (choice < 1 || choice > 7) {
@@ -308,11 +277,11 @@ bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryMa
             break;
         }
         case 5: {
-            showUnavailableProducts(products);
+            products.showUnavailableProducts();
             break;
         }
         case 6: {
-            showTopProducts(products);
+            products.showTopProducts();
             break;
         }
         case 7: {

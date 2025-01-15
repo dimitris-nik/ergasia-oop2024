@@ -10,11 +10,11 @@ class Customer : public User {
 public:
     Customer(std::string username, std::string password);
     void displayMenu();
-    bool executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories);
-    void searchProduct(std::map<std::string, Product*> products, CategoryManager& categories);
-    void addProductToCart(std::map<std::string, Product*>& products);
-    void updateProductInCart(std::map<std::string, Product*>& products);
-    void removeProductFromCart(std::map<std::string, Product*>& products);
+    bool executeCommand(ProductManager& products, CategoryManager& categories);
+    void searchProduct(ProductManager products, CategoryManager& categories);
+    void addProductToCart(ProductManager& products);
+    void updateProductInCart(ProductManager& products);
+    void removeProductFromCart(ProductManager& products);
     void completeOrder();
     void viewOrderHistory();
     void viewCart();

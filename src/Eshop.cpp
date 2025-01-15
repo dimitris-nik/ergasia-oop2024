@@ -13,9 +13,6 @@ Eshop::~Eshop(){
     for(auto user : users){
         delete user.second;
     }   
-    for(auto product : products){
-        delete product.second;
-    }   
 }
 
 User* Eshop::login(){
@@ -142,7 +139,7 @@ void Eshop::loadProducts() {
         measurementType = trim(measurementType);
         Product * product= new Product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
         categories.addProduct(product, category, subcategory);
-        products[title] = product;
+        products.addProduct(product);
     }
     file.close();
 }
@@ -176,16 +173,5 @@ void Eshop::saveChanges() {
         usersFile << *(user.second); //overloaded operator<< in User class
     }
     usersFile.close();
-    ofstream productsFile(Eshop::productsFile);
-    endl_flag = 0;
-    for (auto product : products) {
-        if (endl_flag == 0) { // no newline before first product
-            endl_flag = 1;
-        }
-        else { 
-            productsFile << endl;
-        }
-        productsFile << *(product.second); // overloaded operator<< in Product class
-    }
-    productsFile.close();
+    products.saveProducts(productsFile);
 }
