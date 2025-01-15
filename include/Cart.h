@@ -9,7 +9,8 @@ class Cart {
 public:
     std::map<Product, int> items; // item, amount
     void addProduct(Product& product, int quantity);
-    void removeProduct(std::string& title);
+    void removeProduct(Product& product);
     void updateProduct(Product& product, int quantity);
-    void displayCart();
+    void clearCart();
+    friend std::ostream& operator<<(std::ostream& os, const Cart& cart);
 };

@@ -50,8 +50,9 @@ void Category::displaySubcategories() const{
 
 void Category::displayProducts() const{
     for (const auto& product : products) {
-        std::cout << product->title;
+        std::cout << "\"" << product->title << "\" ";
     }
+    std::cout << std::endl;
 }
 
 Category* Category::findSubcategory(const std::string& subcategory) const{

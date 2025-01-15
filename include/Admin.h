@@ -13,7 +13,7 @@ public:
     void addProduct(std::map<std::string, Product*>& products, CategoryManager& categories);
     void editProduct(std::map<std::string, Product*>& products, CategoryManager& categories);
     void removeProduct(std::map<std::string, Product*>& products, CategoryManager& categories);
-    void searchProduct(std::map<std::string, Product*>& products);
+    void searchProduct(std::map<std::string, Product*>& products, CategoryManager& categories);
     void showUnavailableProducts(std::map<std::string, Product*>& products);
     void showTopProducts(std::map<std::string, Product*>& products);
     

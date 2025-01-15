@@ -149,9 +149,10 @@ void Admin::editProduct(std::map<std::string, Product*>& products, CategoryManag
         }
         default: {
             std::cout << "Invalid Option." << std::endl;
-            break;
+            return;
         }
     }
+    std::cout << "Product updated!" << std::endl;
 
 }
 
@@ -169,6 +170,97 @@ void Admin::removeProduct(std::map<std::string, Product*>& products, CategoryMan
     categories.findCategory(product->category)->removeProduct(product);
     delete product;
 }
+
+
+void Admin::searchProduct(std::map<std::string, Product*>& products, CategoryManager& categories){
+    std::cout << "1. Search for a specific product (by title)." << std::endl;
+    std::cout << "2. View the products of a specific category." << std::endl;
+    std::cout << "3. Show all the available products." << std::endl;
+    std::cout << "Enter your choice: ";
+    int choice;
+    std::cin >> choice;
+    while (choice < 1 || choice > 3) {
+        std::cout << "Invalid Option. Please enter a number between 1 and 3: ";
+        std::cin >> choice;
+    }
+    switch(choice){
+        case 1: {
+            std::string titleSearch;
+            std::cout << "Enter title to search: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, titleSearch);
+            if (products.find(titleSearch) != products.end()) {
+                products[titleSearch]->displayProduct();
+            } else {
+                std::cout << "Product not found." << std::endl;
+            }
+            break;
+        }
+        case 2: {
+            std::string categorySearch;
+            std::string subcategorySearch;
+            std::cout << "Enter category to search: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, categorySearch);
+            auto searchCategory = categories.findCategory(categorySearch);
+            while (!searchCategory) {
+                std::cout << "Invalid Category. Please choose from the above." << std::endl;
+                std::getline(std::cin, categorySearch);
+                searchCategory = categories.findCategory(categorySearch);
+            }
+            std::cout << "Enter subcategory to search (leave empty for all subcategories): ";
+            std::getline(std::cin, subcategorySearch);
+            auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
+            while (!subcategorySearch.empty() && !searchSubcategory) {
+                std::cout << "Invalid Subcategory. Please choose from the above, or leave empty." << std::endl;
+                std::getline(std::cin, subcategorySearch);
+                searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
+            }
+            if (subcategorySearch.empty()) {
+                searchCategory->displayProducts();
+            } else {
+                searchSubcategory->displayProducts();
+            }
+            break;
+        }
+        case 3: {
+            std::cout << "Results: ";
+            for (const auto& product : products) {
+                std::cout << "\"" << product.first << "\" ";
+            }
+            std::cout << std::endl;
+            std::cout << "Select a product title: ";
+            std::string selectedTitle;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, selectedTitle);
+            while (products.find(selectedTitle) == products.end()) {
+                std::cout << "Invalid Product. Please choose from the above." << std::endl;
+                std::getline(std::cin, selectedTitle);
+            }
+            products[selectedTitle]->displayProduct();
+            break;
+        }
+        default: {
+            std::cout << "Invalid Option." << std::endl;
+            break;
+        }
+    }
+
+}
+
+void Admin::showUnavailableProducts(std::map<std::string, Product*>& products) {
+    std::cout << "Unavailable Products:" << std::endl;
+    bool found = false;
+    for (auto product : products) {
+        if (product.second->amount == 0) {
+            product.second->displayProduct();
+            found = true;
+        }
+    }
+    if(!found) std::cout << "No unavailable products." << std::endl;
+}
+
+
 
 bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryManager& categories){
     int choice;
@@ -191,12 +283,15 @@ bool Admin::executeCommand(std::map<std::string, Product*>& products, CategoryMa
             break;
         }
         case 4: {
+            searchProduct(products, categories);
             break;
         }
         case 5: {
+            showUnavailableProducts(products);
             break;
         }
         case 6: {
+            //showTopProducts(products);
             break;
         }
         case 7: {
