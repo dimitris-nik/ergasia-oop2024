@@ -13,6 +13,7 @@ protected:
 public:
     User(std::string username, std::string password, bool isAdmin);
     virtual ~User() = default;
+    std::string getUsername() const;
     virtual void displayMenu() = 0; // Pure virtual function for menu display
     virtual bool executeCommand(ProductManager& products, CategoryManager& categories) = 0; // Pure virtual function to execute user choice
     bool checkPassword(std::string& password) const;
@@ -20,13 +21,11 @@ public:
 };
 
 class UserManager {
-    std::map<std::string, User*> users;
+    std::unordered_map<std::string, User*> users;
 public:
+    ~UserManager();
     void addUser(User* user);
     void removeUser(const std::string& username);
-    void displayUsers() const;
     User* findUser(const std::string& username) const;
-    void saveChanges(const std::string& usersFile) const;
-    void loadUsers(const std::string& usersFile);
-    void showAdmins() const;
+    void saveUsers(const std::string& usersFile) const;
 };

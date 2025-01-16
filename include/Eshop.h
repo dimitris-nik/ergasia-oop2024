@@ -12,7 +12,7 @@
 
 class Eshop {
 protected:
-    std::map<std::string, User*> users;
+    UserManager users;
     ProductManager products;
     CategoryManager categories;
     const std::string& productsFile;

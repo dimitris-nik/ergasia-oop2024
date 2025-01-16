@@ -9,10 +9,9 @@ Eshop::Eshop(const string& categoriesFile, const string& productsFile, const str
     loadProducts();
 }
 
-Eshop::~Eshop(){
-    for(auto user : users){
-        delete user.second;
-    }   
+Eshop::~Eshop() {
+    users.saveUsers(usersFile);
+    products.saveProducts(productsFile);
 }
 
 User* Eshop::login(){
@@ -21,14 +20,16 @@ User* Eshop::login(){
     cin >> username;
     cout << "Please enter your password: ";
     cin >> password;
-    if (users.find(username) != users.end() and users[username]->checkPassword(password)) {
-        cout << "Welcome " << username << "!" << endl;
-        return users[username];
+    User * user = users.findUser(username);
+    while (user == nullptr || !user->checkPassword(password)) {
+        cout << "Invalid username or password. Please try again." << endl;
+        cout << "Please enter your username: ";
+        cin >> username;
+        cout << "Please enter your password: ";
+        cin >> password;
+        user = users.findUser(username);
     }
-    else {
-        cout << "Invalid username or password. Try again" << endl;
-        return login();
-    }
+    return user;
 }
 
 User* Eshop::registers(){
@@ -38,8 +39,8 @@ User* Eshop::registers(){
         exists = true;
         cout << "Please enter your username: ";
         cin >> username;
-        if (users.find(username) != users.end()) {
-            cout << "Username already exists. Please choose another." << endl;
+        if (users.findUser(username) != nullptr) {
+            cout << "Username already exists. Please enter a different username." << endl;
             exists = false;
         }
     } 
@@ -52,12 +53,12 @@ User* Eshop::registers(){
 
     if (isAdmin) {
         auto admin = new Admin(username, password);
-        users[username] = admin;
+        users.addUser(admin);
         return admin;
             
     } else {
         auto customer = new Customer(username, password, 0);
-        users[username] = customer;
+        users.addUser(customer);
         return customer;
     }
 }
@@ -85,7 +86,6 @@ void Eshop::run(){
     }
     cout << "Goodbye!" << endl;
     saveChanges();
-    
 }
 
 void Eshop::loadUsers() {
@@ -105,7 +105,7 @@ void Eshop::loadUsers() {
         getline(ss, isAdminStr, ',');
         bool isAdmin = (isAdminStr == "1");
         if(isAdmin){
-            users[username] = new Admin(username, password);
+            users.addUser(new Admin(username, password));
         } else {
             std::string historyFileName = "files/order_history/" + username + "_history.txt";
             std::ifstream historyFile(historyFileName);
@@ -123,7 +123,7 @@ void Eshop::loadUsers() {
             else{
                 cerr << "Error opening history file." << endl;
             }
-            users[username] = new Customer(username, password, orders);
+            users.addUser(new Customer(username, password, orders));
         }
     }
     file.close();
@@ -160,22 +160,7 @@ void Eshop::loadProducts() {
     file.close();
 }
 
-void Eshop::loadHistories() {
-}
-
 void Eshop::saveChanges() {
-    int endl_flag = 0;
-    ofstream usersFile(Eshop::usersFile);
-    
-    for (auto user: users) {
-        if (endl_flag == 0) {
-            endl_flag = 1;
-        }
-        else { 
-            usersFile << endl;
-        }
-        usersFile << *(user.second); //overloaded operator<< in User class
-    }
-    usersFile.close();
     products.saveProducts(productsFile);
+    users.saveUsers(usersFile);
 }
