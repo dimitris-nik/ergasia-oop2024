@@ -76,7 +76,7 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
     std::cout << "Enter the title of the product you want to edit: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    if(products.findProduct(title)){
+    if(!products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
     }
@@ -166,7 +166,7 @@ void Admin::removeProduct(ProductManager& products, CategoryManager& categories)
     std::cout << "Enter the title of the product you want to remove: ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    if(products.findProduct(title)){
+    if(!products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
     }

@@ -8,9 +8,7 @@
 #include <algorithm>
 
 
-Customer::Customer(std::string username, std::string password) : User(username, password, false), cart() {
-        historyFileName = "files/order_history/" + username + "_history.txt";
-}
+Customer::Customer(const std::string& username, const std::string& password, int ordersCompleted) : User(username, password, false), ordersCompleted(ordersCompleted) {}
 
 void Customer::displayMenu() {
     std::cout << std::endl;
@@ -21,7 +19,7 @@ void Customer::displayMenu() {
     std::cout << "4. Remove product from cart" << std::endl;
     std::cout << "5. Complete order" << std::endl;
     std::cout << "6. View order history" << std::endl;
-     std::cout << "7. View cart" << std::endl;
+    std::cout << "7. View cart" << std::endl;
     std::cout << "8. Exit" << std::endl;
     std::cout << "Enter your choice: ";
 } 
@@ -139,12 +137,15 @@ void Customer::removeProductFromCart(ProductManager& products) {
     std::cout << "Which product do you want to remove from your cart? ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-// !!!???
-    if (products.findProduct(title)) {
-        cart.removeProduct(products.findProduct(title));
-    } else {
-        std::cout << "Product does not exist." << std::endl;
+    auto product = products.findProduct(title);
+    if (product == nullptr) {
+        std::cout << "Product not found!" << std::endl;
+        return;
     }
+    if (!cart.removeProduct(product)) {
+        std::cout << "Product not found in cart!" << std::endl;
+    }
+    std::cout << "Product removed from cart!" << std::endl;
 }
 
 void Customer::viewCart() {
@@ -158,13 +159,15 @@ void Customer::updateProductInCart(ProductManager& products) {
     std::cout << "Which product do you want to update? ";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, title);
-    std::cout << "Enter new quantity: ";
-    std::cin >> quantity;
-
-    bool productFound = false;
     auto product = products.findProduct(title);
     if (product == nullptr) {
         std::cout << "Product not found!" << std::endl;
+        return;
+    }
+    std::cout << "Enter new quantity: ";
+    std::cin >> quantity;
+    if (quantity == 0) {
+        cart.removeProduct(product);
         return;
     }
     if (product->getAmount() >= quantity) {
@@ -173,36 +176,28 @@ void Customer::updateProductInCart(ProductManager& products) {
         if (product->getAmount() == 0) {
             std::cout << "Product out of stock!" << std::endl;
         } else {
-            std::cout << "Not enough available, add " << product->getAmount() << " to cart instead? (y/n)" << std::endl;
-            std::string answer;
-            std::cin >> answer;
-            if (answer == "y") {
-                cart.updateProduct(product, product->getAmount());
-                productFound = true;
-            }
-            else {
-                return;
-            }
+            std::cout << "Not enough available, added " << product->getAmount() << " to cart instead." << std::endl;
+            cart.updateProduct(product, product->getAmount());
+
         }   
     }
 }
 
 void Customer::completeOrder(){
-    std::ofstream historyFile(historyFileName, std::ios::app);
+    std::ofstream historyFile("files/order_history/" + username + "_history.txt", std::ios::app);   
     if (!historyFile.is_open()) {
         std::cerr << "Error opening history file." << std::endl;
         return;
     }
-    historyFile << std::endl << std::endl;
-    historyFile << cart;
+    if (ordersCompleted!=0) historyFile << std::endl << std::endl;
+    cart.saveToFile(historyFile, ++ordersCompleted);
     historyFile.close();
-    
-    cart.checkout();    
+    cart.checkout();  
     std::cout << "Order completed!" << std::endl;
 }
 
 void Customer::viewOrderHistory(){
-    std::ifstream historyFile(historyFileName);
+    std::ifstream historyFile("files/order_history/" + username + "_history.txt");
     if (!historyFile.is_open()) {
         std::cerr << "Error opening history file." << std::endl;
         return;
@@ -221,6 +216,8 @@ bool Customer::executeCommand(ProductManager& products, CategoryManager& categor
         std::cout << "Invalid Option. Please enter a number between 1 and 8: ";
         std::cin >> choice;
     }
+    
+    
     switch(choice){
         case 1: {
             searchProduct(products, categories);

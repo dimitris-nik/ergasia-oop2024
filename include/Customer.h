@@ -6,9 +6,9 @@
 #include <string>
 class Customer : public User {
     Cart cart;
-    std::string historyFileName;
+    int ordersCompleted;
 public:
-    Customer(std::string username, std::string password);
+    Customer(const std::string& username, const std::string& password, int ordersCompleted);
     void displayMenu();
     bool executeCommand(ProductManager& products, CategoryManager& categories);
     void searchProduct(ProductManager products, CategoryManager& categories);

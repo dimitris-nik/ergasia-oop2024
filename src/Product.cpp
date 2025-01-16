@@ -101,14 +101,13 @@ bool ProductManager::removeProduct(const std::string& title) {
     if (products.find(title) == products.end()) {
         return false;
     }
-    delete products[title];
     products.erase(title);
     return true;
 }
 
 void ProductManager::displayProducts() const {
     for (const auto& product : products) {
-        product.second->displayProduct();
+        std::cout << "\"" << product.first << "\" ";
     }
 }
 

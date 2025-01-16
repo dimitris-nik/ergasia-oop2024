@@ -4,52 +4,50 @@
 
 void Cart::addProduct(Product* product, int quantity) {
     items[product] += quantity;
+    totalCost += product->getPrice() * quantity;
 }
-void Cart::removeProduct(Product* product){
+bool Cart::removeProduct(Product* product){
     if (items.find(product) != items.end()) {
+        totalCost -= product->getPrice() * items[product];
         items.erase(product);
-        std::cout << "Product removed!" << std::endl;
+        return true;
     }
-    else {
-        std::cout << "Product not found in cart!" << std::endl;
+    return false;
+}
+bool Cart::updateProduct(Product* product, int quantity){   
+    if (items.find(product) != items.end()) {
+        totalCost -= product->getPrice() * items[product];
+        items[product] = quantity;
+        totalCost += product->getPrice() * quantity;
+        return true;
     }
-}
-void Cart::updateProduct(Product* product, int quantity){
-    items[product] = quantity;
-}
-
-void Cart::clearCart() {
-    items.clear();
+    return false;
 }
 
 void Cart::checkout() {
     for (const auto& item : items) {
         item.first->setAmount(item.first->getAmount() - item.second);
-        item.first->increaseAppearedInCart();
     }
-    clearCart();
-    std::cout << "Order completed!" << std::endl;
+    items.clear();
+    totalCost = 0;
 }
-/*
-std::cout << std::endl;
-    std::cout << "---CART START---" << std::endl;
-     double totalCost = 0;
+
+void Cart::saveToFile(std::ostream& os, int number) { // this is necessary unfortunately to save numbered cart to file, would be cleaner if i could only use << operator :(
+    os << "---CART " << number <<" START---" << std::endl;
     for (const auto& item : items) {
-        std::cout << item.second << " " << item.first.title << std::endl;
-         totalCost += item.first.price * item.second;
+        os << item.second << " " << item.first->getTitle() << std::endl;
     }
-    std::cout << "---CART END---" << std::endl;
-    std::cout << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;
-*/
+    os << "---CART " << number <<" END---" << std::endl;
+    os << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost;
+}
+
 std::ostream& operator<<(std::ostream& os, const Cart& cart) {
     os << "---CART START---" << std::endl;
-    double totalCost = 0;
     for (const auto& item : cart.items) {
         os << item.second << " " << item.first->getTitle() << std::endl;
-        totalCost += item.first->getPrice() * item.second;
     }
     os << "---CART END---" << std::endl;
-    os << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost << std::endl << std::endl;
+    os << "Total Cost: " << std::fixed << std::setprecision(2) << cart.totalCost << std::endl << std::endl;
     return os;
 
 }

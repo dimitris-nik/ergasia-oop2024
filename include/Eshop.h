@@ -9,8 +9,6 @@
 #include "Product.h"
 #include "Category.h"
 #include "utils.h"
-typedef std::map<std::string, User*> usersDatabase;
-typedef std::map<std::string, Product*> productDatabase;
 
 class Eshop {
 protected:

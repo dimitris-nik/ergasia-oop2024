@@ -56,7 +56,7 @@ User* Eshop::registers(){
         return admin;
             
     } else {
-        auto customer = new Customer(username, password);
+        auto customer = new Customer(username, password, 0);
         users[username] = customer;
         return customer;
     }
@@ -107,7 +107,23 @@ void Eshop::loadUsers() {
         if(isAdmin){
             users[username] = new Admin(username, password);
         } else {
-            users[username] = new Customer(username, password);
+            std::string historyFileName = "files/order_history/" + username + "_history.txt";
+            std::ifstream historyFile(historyFileName);
+            int orders = 0;
+            if (historyFile.is_open()) {
+                std::string line;
+                while (std::getline(historyFile, line)) {
+                    //check for line --CART number START---
+                    if (line.find("START---") != std::string::npos) {
+                        orders++;
+                    }
+                }
+                historyFile.close();
+            }
+            else{
+                cerr << "Error opening history file." << endl;
+            }
+            users[username] = new Customer(username, password, orders);
         }
     }
     file.close();
@@ -145,18 +161,6 @@ void Eshop::loadProducts() {
 }
 
 void Eshop::loadHistories() {
-    ifstream file("history.txt");
-    string line;
-
-    if (!file.is_open()) {
-        cerr << "Error opening history file." << endl;
-        return;
-    }
-
-    while (getline(file, line)) {
-        cout << line << endl;
-    }
-    file.close();
 }
 
 void Eshop::saveChanges() {
