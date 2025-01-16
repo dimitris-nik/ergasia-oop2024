@@ -209,6 +209,11 @@ void Customer::viewOrderHistory(){
     historyFile.close();
 }
 
+void Customer::addDiscount(Product* product, double discount) {
+    discounts[product] = discount;
+}
+
+
 bool Customer::executeCommand(ProductManager& products, CategoryManager& categories) {
     int choice;
     std::cin >> choice;

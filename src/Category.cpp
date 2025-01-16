@@ -70,6 +70,13 @@ Category* CategoryManager::addCategory(const std::string & category){
     return newCategory;
 }
 
+int Category::getAmountForDiscount() const{
+    return amountForDiscount;
+}
+
+void Category::setAmountForDiscount(int amount){
+    amountForDiscount = amount;
+}
 
 CategoryManager::~CategoryManager(){
     for (auto& category : categories) {

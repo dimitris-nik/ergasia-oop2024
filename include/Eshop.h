@@ -18,6 +18,7 @@ protected:
     const std::string& usersFile;
     const std::string& productsFile;
     const std::string& categoriesFile;
+    const std::string& discountsFile;
     User* login();
     User* registers();
     void loadUsers();
@@ -26,7 +27,7 @@ protected:
     void loadHistories();
     void saveChanges();
 public:
-    Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile);
+    Eshop(const std::string& categoriesFile = "files/categories.txt", const std::string& productsFile = "files/products.txt", const std::string& usersFile = "files/users.txt", const std::string& discountsFile = "files/discounts.txt");
     ~Eshop();
     void run();
 };

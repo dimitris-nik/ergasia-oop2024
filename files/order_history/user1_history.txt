@@ -7,5 +7,17 @@ Total Cost: 40
 
 ---CART 2 START---
 1 Laptop
+6 Bottle of Beer
+---CART 2 END---
+Total Cost: 1200
+
+---CART 2 START---
+1 Laptop
+6 Bottle of Beer
+---CART 2 END---
+Total Cost: 1200
+
+---CART 2 START---
+6 Bottle of Beer
 ---CART 2 END---
 Total Cost: 1200

@@ -17,6 +17,8 @@ class Category {
         void addProduct(Product* product);
         void removeProduct(Product* product);
         void displayProducts() const;
+        int getAmountForDiscount() const;
+        void setAmountForDiscount(int amount);
         Category* findSubcategory(const std::string& subcategory) const;
 };
 

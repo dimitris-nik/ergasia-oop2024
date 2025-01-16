@@ -7,6 +7,7 @@
 class Customer : public User {
     Cart cart;
     int ordersCompleted;
+    std::unordered_map<Product*, double> discounts;
 public:
     Customer(const std::string& username, const std::string& password, int ordersCompleted);
     void displayMenu();
@@ -18,5 +19,5 @@ public:
     void completeOrder();
     void viewOrderHistory();
     void viewCart();
-    
+    void addDiscount(Product* product, double discount);
 };

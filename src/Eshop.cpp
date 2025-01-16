@@ -2,9 +2,11 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip> // For fixed and setprecision
+#include <limits> 
+#include <array>
 using namespace std;
 
-Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile) {
+Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile, const string& discountsFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile), discountsFile(discountsFile) {
     loadCategories();
     loadProducts();
     loadUsers();
@@ -113,18 +115,62 @@ void Eshop::loadUsers() {
             std::string historyFileName = "files/order_history/" + username + "_history.txt";
             std::ifstream historyFile(historyFileName);
             int orders = 0;
+            std::unordered_map<std::string , std::array<int, 3>> productStats; // Product, <consecutive orders, total amount, found in last cart>
             if (historyFile.is_open()) {
                 std::string line;
                 while (std::getline(historyFile, line)) {
                     if (line.find("START---") != std::string::npos) {
                         orders++;
                     }
+                    else if (!((line.find("END---") != std::string::npos) or (line.find("Total Cost")!= std::string::npos)) && line!="" ){
+                        int quantity;
+                        std::string title;
+                        std::stringstream ss(line);
+                        ss >> quantity;
+                        getline(ss, title);
+                        title = trim(title);
+                        if (productStats.find(title) == productStats.end()) {
+                            productStats[title] = {1, quantity, true};
+                            Product*  prod = products.findProduct(title);
+                            if (prod != nullptr) {
+                                prod->increaseAppearedInCart();
+                            }
+                        } else {
+                            // Check if product was found in current cart
+                            if (!productStats[title][2]) {
+                                Product*  prod = products.findProduct(title);
+                                if (prod != nullptr) {
+                                    prod->increaseAppearedInCart();
+                                }
+                                productStats[title][2] = true;
+                            }
+                            productStats[title][0]++;
+                            productStats[title][1] += quantity;
+                        }
+                    }
+                    else if (line.find("END---")!= std::string::npos){
+                        // Reset consecutive orders for false products or products with 4 consecutive orders (The 4th order is the one that the discount was applied)
+                        for (auto& p : productStats) {
+                            auto& stats = p.second;
+                            if (!stats[2] or stats[0] == 4) {
+                                stats[0] = 0;
+                            }
+                        }
+                        // Set all products to false
+                        for (auto& p : productStats) {
+                            p.second[2] = false;
+                        }
+                    }
                 }
                 historyFile.close();
+
             }
             else{
                 cerr << "Error opening history file." << endl;
             }
+            
+
+
             users.addUser(new Customer(username, password, orders));
         }
     }
@@ -171,6 +217,11 @@ void Eshop::loadCategories() {
         return;
     }
 
+    std::ifstream dFile(discountsFile);
+    if (!dFile.is_open()) {
+        std::cerr << "Error opening discounts file." << std::endl;
+        return;
+    }
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string categoryName;
@@ -188,6 +239,16 @@ void Eshop::loadCategories() {
                 category->addSubcategory(trim(subcategory));
             }
         }
+        // Read discount
+        std::string discountLine;
+        std::getline(dFile, discountLine);
+        std::stringstream discountStream(discountLine);
+        std::string discountStr;
+        std::getline(discountStream, discountStr, '@');
+        // Ignore category name
+        std::getline(discountStream, discountStr);
+        int discount = std::stoi(discountStr);
+        category->setAmountForDiscount(discount);
     }
     file.close();
 }
