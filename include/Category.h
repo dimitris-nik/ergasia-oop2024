@@ -7,6 +7,7 @@ class Category {
     private:
         std::vector<Category*> subcategories;
         std::vector<Product*> products;
+        int amountForDiscount;
     public:
         std::string name;
         Category(const std::string & name);
@@ -23,7 +24,6 @@ class CategoryManager {
     private:
         std::vector<Category*> categories;
     public:
-        CategoryManager(const std::string & categoriesFile);
         ~CategoryManager();
         Category* addCategory(const std::string & category);
         void displayCategories() const;

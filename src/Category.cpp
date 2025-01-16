@@ -70,35 +70,6 @@ Category* CategoryManager::addCategory(const std::string & category){
     return newCategory;
 }
 
-CategoryManager::CategoryManager(const std::string & categoriesFile){
-    std::ifstream file(categoriesFile);
-    std::string line;
-
-    if (!file.is_open()) {
-        std::cerr << "Error opening category file." << std::endl;
-        return;
-    }
-
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string categoryName;
-        std::string subcategoriesLine;
-
-        std::getline(ss, categoryName, '(');
-        categoryName = trim(categoryName);
-
-        Category* category = addCategory(categoryName);
-
-        if (std::getline(ss, subcategoriesLine, ')')) {
-            std::stringstream subcats(subcategoriesLine);
-            std::string subcategory;
-            while (std::getline(subcats, subcategory, '@')) {
-                category->addSubcategory(trim(subcategory));
-            }
-        }
-    }
-    file.close();
-}
 
 CategoryManager::~CategoryManager(){
     for (auto& category : categories) {

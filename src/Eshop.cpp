@@ -4,9 +4,10 @@
 #include <iomanip> // For fixed and setprecision
 using namespace std;
 
-Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile) : categories(categoriesFile), productsFile(productsFile), usersFile(usersFile) {
-    loadUsers();
+Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile) {
+    loadCategories();
     loadProducts();
+    loadUsers();
 }
 
 Eshop::~Eshop() {
@@ -88,6 +89,8 @@ void Eshop::run(){
     saveChanges();
 }
 
+
+
 void Eshop::loadUsers() {
     ifstream file(usersFile);
     string line;
@@ -113,7 +116,6 @@ void Eshop::loadUsers() {
             if (historyFile.is_open()) {
                 std::string line;
                 while (std::getline(historyFile, line)) {
-                    //check for line --CART number START---
                     if (line.find("START---") != std::string::npos) {
                         orders++;
                     }
@@ -156,6 +158,36 @@ void Eshop::loadProducts() {
         Product * product= new Product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
         categories.addProduct(product, category, subcategory);
         products.addProduct(product);
+    }
+    file.close();
+}
+
+void Eshop::loadCategories() {
+    std::ifstream file(categoriesFile);
+    std::string line;
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening category file." << std::endl;
+        return;
+    }
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string categoryName;
+        std::string subcategoriesLine;
+
+        std::getline(ss, categoryName, '(');
+        categoryName = trim(categoryName);
+
+        Category* category = categories.addCategory(categoryName);
+
+        if (std::getline(ss, subcategoriesLine, ')')) {
+            std::stringstream subcats(subcategoriesLine);
+            std::string subcategory;
+            while (std::getline(subcats, subcategory, '@')) {
+                category->addSubcategory(trim(subcategory));
+            }
+        }
     }
     file.close();
 }
