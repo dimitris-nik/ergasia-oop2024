@@ -27,43 +27,40 @@ void Admin::addProduct(ProductManager& products, CategoryManager& categories){
     int amount;
 
     std::cout << "Give product title: ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     while(products.findProduct(title)){
         std::cout << "Product with this title already exists. Please enter a different title: ";
-        std::getline(std::cin, title);
+        title = readString();
     }
     std::cout << "Give product description: ";
-    std::getline(std::cin, description);
+    description = readString();
 
     std::cout << "Give one of the following categories: ";
     categories.displayCategories();
-    std::getline(std::cin, categoryStr);
+    categoryStr = readString();
     productCategory = categories.findCategory(categoryStr);
     while (!productCategory) {
         std::cout << "Invalid Category. Please choose from the above." << std::endl;
-        std::getline(std::cin, categoryStr);
+        categoryStr = readString();
         productCategory = categories.findCategory(categoryStr);
     }
     std::cout << "Give one of the following subcategories: ";
 
     productCategory->displaySubcategories();
-
-    std::getline(std::cin, subcategoryStr);
+    subcategoryStr = readString();
     productSubcategory = productCategory->findSubcategory(subcategoryStr);
     while (!productSubcategory) {
         std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
-        std::getline(std::cin, subcategoryStr);
+        subcategoryStr = readString();
         productSubcategory = productCategory->findSubcategory(subcategoryStr);
     }
     std::cout << "Give product price: ";
-    std::cin >> price;
+    price = readDouble();
     std::cout << "Give product measurement type: ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, measurementType);
+    measurementType = readString();    
 
     std::cout << "Give product amount: ";
-    std::cin >> amount;
+    amount = readInt();
 
     Product * product = new Product(title, description, categoryStr, subcategoryStr, price, measurementType, amount);
     products.addProduct(product);
@@ -74,29 +71,26 @@ void Admin::addProduct(ProductManager& products, CategoryManager& categories){
 void Admin::editProduct(ProductManager& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to edit: ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     if(!products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
     }
     Product* product = products.findProduct(title);
     std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << std::endl;
-    int choice;
-    std::cin >> choice;
+    int choice = readInt();
     while (choice < 1 || choice > 6) {
         std::cout << "Invalid Option. Please enter a number between 1 and 6: ";
-        std::cin >> choice;
+        choice = readInt();
     }
     switch(choice){
         case 1: {
             std::string newTitle;
             std::cout << "Enter new title: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, newTitle);
+            newTitle = readString();
             while (products.findProduct(newTitle)) {
                 std::cout << "Product with this title already exists. Please enter a different title: ";
-                std::getline(std::cin, newTitle);
+                newTitle = readString();
             }
             products.removeProduct(product->getTitle());
             product->setTitle(newTitle);
@@ -106,8 +100,7 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
         case 2: {
             std::string newDescription;
             std::cout << "Enter new description: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, newDescription);
+            newDescription = readString();
             product->setDescription(newDescription);
             break;
         }
@@ -116,18 +109,17 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
             std::string newSubcategory;
             std::cout << "Enter new category: ";
             categories.displayCategories();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, newCategory);
+            newCategory = readString();
             while (!categories.findCategory(newCategory)) {
                 std::cout << "Invalid Category. Please choose from the above." << std::endl;
-                std::getline(std::cin, newCategory);
+                newCategory = readString();
             }
             std::cout << "Enter new subcategory: ";
             categories.findCategory(newCategory)->displaySubcategories();
-            std::getline(std::cin, newSubcategory);
+            newSubcategory = readString();
             while (!categories.findCategory(newCategory)->findSubcategory(newSubcategory)) {
                 std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
-                std::getline(std::cin, newSubcategory);
+                newSubcategory = readString();
             }
             categories.removeProduct(product);
             product->setCategory(newCategory);
@@ -138,14 +130,22 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
         case 4: {
             double newPrice;
             std::cout << "Enter new price: ";
-            std::cin >> newPrice;
+            newPrice = readDouble();
+            while (newPrice < 0) {
+                std::cout << "Invalid price. Please enter a valid price: ";
+                newPrice = readDouble();
+            }
             product->setPrice(newPrice);
             break;
         }
         case 5: {
             int newAmount;
             std::cout << "Enter new amount: ";
-            std::cin >> newAmount;
+            newAmount = readInt();
+            while (newAmount < 0) {
+                std::cout << "Invalid amount. Please enter a valid amount: ";
+                newAmount = readInt();
+            }
             product->setAmount(newAmount);
             break;
         }
@@ -164,8 +164,7 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
 void Admin::removeProduct(ProductManager& products, CategoryManager& categories){
     std::string title;
     std::cout << "Enter the title of the product you want to remove: ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     if(!products.findProduct(title)){
         std::cout << "Product not found." << std::endl;
         return;
@@ -183,17 +182,16 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
     std::cout << "3. Show all the available products." << std::endl;
     std::cout << "Enter your choice: ";
     int choice;
-    std::cin >> choice;
+    choice = readInt();
     while (choice < 1 || choice > 3) {
         std::cout << "Invalid Option. Please enter a number between 1 and 3: ";
-        std::cin >> choice;
+        choice = readInt();
     }
     switch(choice){
         case 1: {
             std::string titleSearch;
             std::cout << "Enter title to search: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, titleSearch);
+            titleSearch = readString();
             if (products.findProduct(titleSearch)) {
                 products.findProduct(titleSearch)->displayProduct();
             } else {
@@ -205,20 +203,19 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
             std::string categorySearch;
             std::string subcategorySearch;
             std::cout << "Enter category to search: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, categorySearch);
+            categorySearch = readString();
             auto searchCategory = categories.findCategory(categorySearch);
             while (!searchCategory) {
                 std::cout << "Invalid Category. Please choose from the above." << std::endl;
-                std::getline(std::cin, categorySearch);
+                categorySearch = readString();
                 searchCategory = categories.findCategory(categorySearch);
             }
             std::cout << "Enter subcategory to search (leave empty for all subcategories): ";
-            std::getline(std::cin, subcategorySearch);
+            subcategorySearch = readString();
             auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             while (!subcategorySearch.empty() && !searchSubcategory) {
                 std::cout << "Invalid Subcategory. Please choose from the above, or leave empty." << std::endl;
-                std::getline(std::cin, subcategorySearch);
+                subcategorySearch = readString();
                 searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             }
             if (subcategorySearch.empty()) {
@@ -234,11 +231,10 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
             std::cout << std::endl;
             std::cout << "Select a product title: ";
             std::string selectedTitle;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, selectedTitle);
+            selectedTitle = readString();
             while (!products.findProduct(selectedTitle)) {
                 std::cout << "Invalid Product. Please choose from the above." << std::endl;
-                std::getline(std::cin, selectedTitle);
+                selectedTitle = readString();
             }
             products.findProduct(selectedTitle)->displayProduct();
             break;
@@ -253,11 +249,10 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
 
 
 bool Admin::executeCommand(ProductManager& products, CategoryManager& categories){
-    int choice;
-    std::cin >> choice;
+    int choice = readInt();
     while (choice < 1 || choice > 7) {
         std::cout << "Invalid Option. Please enter a number between 1 and 7: ";
-        std::cin >> choice;
+        choice = readInt();
     }
     switch(choice){
         case 1: {

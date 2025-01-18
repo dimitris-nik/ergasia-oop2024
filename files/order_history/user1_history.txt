@@ -11,16 +11,16 @@ Total Cost: 40
 Total Cost: 1200
 
 ---CART 3 START---
-1 Laptop
+2 Laptop
 ---CART 3 END---
-Total Cost: 1200.00
+Total Cost: 2400.00
 
 ---CART 4 START---
 1 Laptop
 ---CART 4 END---
-Total Cost: 1200.00
+Total Cost: 840.00
 
 ---CART 5 START---
-1 Laptop
+2 Laptop
 ---CART 5 END---
-Total Cost: 960.00
+Total Cost: 1920.00

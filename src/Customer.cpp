@@ -8,7 +8,7 @@
 #include <algorithm>
 
 
-Customer::Customer(const std::string& username, const std::string& password, int ordersCompleted, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
+Customer::Customer(const std::string& username, const std::string& password, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
 
 void Customer::displayMenu() {
     std::cout << std::endl;
@@ -21,6 +21,7 @@ void Customer::displayMenu() {
     std::cout << "6. View order history" << std::endl;
     std::cout << "7. View cart" << std::endl;
     std::cout << "8. Exit" << std::endl;
+    discountStats.printDiscount(currDiscount);
     std::cout << "Enter your choice: ";
 } 
 
@@ -29,18 +30,16 @@ void Customer::searchProduct(ProductManager products, CategoryManager& categorie
     std::cout << "2. View the products of a specific category." << std::endl;
     std::cout << "3. Show all the available products." << std::endl;
     std::cout << "Enter your choice: ";
-    int choice;
-    std::cin >> choice;
+    int choice = readInt();
     while (choice < 1 || choice > 3) {
         std::cout << "Invalid Option. Please enter a number between 1 and 3: ";
-        std::cin >> choice;
+        choice = readInt();
     }
     switch(choice){
         case 1: {
             std::string titleSearch;
             std::cout << "Enter title to search: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, titleSearch);
+            titleSearch = readString();
             if (products.findProduct(titleSearch)) {
                 products.findProduct(titleSearch)->displayProduct();
             } else {
@@ -52,20 +51,19 @@ void Customer::searchProduct(ProductManager products, CategoryManager& categorie
             std::string categorySearch;
             std::string subcategorySearch;
             std::cout << "Enter category to search: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, categorySearch);
+            categorySearch = readString();
             auto searchCategory = categories.findCategory(categorySearch);
             while (!searchCategory) {
                 std::cout << "Invalid Category. Please choose from the above." << std::endl;
-                std::getline(std::cin, categorySearch);
+                categorySearch = readString();
                 searchCategory = categories.findCategory(categorySearch);
             }
             std::cout << "Enter subcategory to search (leave empty for all subcategories): ";
-            std::getline(std::cin, subcategorySearch);
+            subcategorySearch = readString();
             auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             while (!subcategorySearch.empty() && !searchSubcategory) {
                 std::cout << "Invalid Subcategory. Please choose from the above, or leave empty." << std::endl;
-                std::getline(std::cin, subcategorySearch);
+                subcategorySearch = readString();
                 searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             }
             if (subcategorySearch.empty()) {
@@ -79,11 +77,10 @@ void Customer::searchProduct(ProductManager products, CategoryManager& categorie
             products.displayProducts();
             std::cout << "Select a product title: ";
             std::string selectedTitle;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, selectedTitle);
+            selectedTitle = readString();
             while (!products.findProduct(selectedTitle)) {
                 std::cout << "Invalid Product. Please choose from the above." << std::endl;
-                std::getline(std::cin, selectedTitle);
+                selectedTitle = readString();
             }
             products.findProduct(selectedTitle)->displayProduct();
             break;
@@ -100,10 +97,13 @@ void Customer::addProductToCart(ProductManager& products) {
     int quantity;
 
     std::cout << "Which product do you want to add? ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     std::cout << "Enter quantity: ";
-    std::cin >> quantity;
+    quantity = readInt();
+    while (quantity <= 0) {
+        std::cout << "Invalid quantity. Please enter a valid quantity: ";   
+        quantity = readInt();
+    }
 
     bool productFound = false;
     auto product = products.findProduct(title);
@@ -117,16 +117,8 @@ void Customer::addProductToCart(ProductManager& products) {
         if (product->getAmount() == 0) {
             std::cout << "Product out of stock!" << std::endl;
         } else {
-            std::cout << "Not enough available, add " << product->getAmount() << " to cart instead? (y/n)" << std::endl;
-            std::string answer;
-            std::cin >> answer;
-            if (answer == "y") {
-                cart.addProduct(product, product->getAmount());
-                productFound = true;
-            }
-            else {
-                return;
-            }
+            cart.addProduct(product, product->getAmount());
+            std::cout << "Not enough available, added " << product->getAmount() << " to cart instead." << std::endl;
         }
         
     }
@@ -135,8 +127,7 @@ void Customer::addProductToCart(ProductManager& products) {
 void Customer::removeProductFromCart(ProductManager& products) {
     std::string title;
     std::cout << "Which product do you want to remove from your cart? ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     auto product = products.findProduct(title);
     if (product == nullptr) {
         std::cout << "Product not found!" << std::endl;
@@ -157,15 +148,18 @@ void Customer::updateProductInCart(ProductManager& products) {
     int quantity;
 
     std::cout << "Which product do you want to update? ";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, title);
+    title = readString();
     auto product = products.findProduct(title);
     if (product == nullptr) {
         std::cout << "Product not found!" << std::endl;
         return;
     }
+    if (!cart.isInCart(product)) {
+        std::cout << "Product not found in cart!" << std::endl;
+        return;
+    }
     std::cout << "Enter new quantity: ";
-    std::cin >> quantity;
+    quantity = readInt();
     if (quantity == 0) {
         cart.removeProduct(product);
         return;
@@ -189,14 +183,10 @@ void Customer::completeOrder(CategoryManager& categories){
         std::cerr << "Error opening history file." << std::endl;
         return;
     }
-    auto discount = discountStats.getDiscount(categories, hasUsedLoyaltyDiscount);
-    if (discount.first != nullptr) {
-        if (discount.second == 0.8) {
-            std::cout << "You bought " << discount.first->getTitle() << " 3 times in a row in your past orders, 20% discount applied!" << std::endl;
-        } else if (discount.second == 0.7) {
-            std::cout << "You seem to like " << discount.first->getCategory() << " products, you have a 30% discount to " << discount.first->getTitle() << "!" << std::endl; 
-        } else if (discount.second == 0.6) {
-            std::cout << "You have completed 5 orders, 40% discount applied to your favorite product, " << discount.first->getTitle() << "!" << std::endl;
+
+    if (currDiscount.product != nullptr and cart.isInCart(currDiscount.product)) {
+        cart.applyDiscount(currDiscount.product, currDiscount.multiplier);
+        if (currDiscount.multiplier == 0.6) {
             hasUsedLoyaltyDiscount = true;
         }
     }
@@ -212,6 +202,7 @@ void Customer::completeOrder(CategoryManager& categories){
     historyFile.close();
     cart.checkout();  
     discountStats.nextCart();
+    updateCurrentDiscount(categories);
     std::cout << "Order completed!" << std::endl;
 }
 
@@ -236,13 +227,11 @@ void Customer::setHasUsedLoyaltyDiscount(bool hasUsedLoyaltyDiscount) {
     this->hasUsedLoyaltyDiscount = hasUsedLoyaltyDiscount;
 }
 
+void Customer::updateCurrentDiscount(CategoryManager& categories) {
+    currDiscount = discountStats.getDiscount(categories, hasUsedLoyaltyDiscount);
+}
 bool Customer::executeCommand(ProductManager& products, CategoryManager& categories) {
-    int choice;
-    std::cin >> choice;
-    while (choice < 1 || choice > 8) {
-        std::cout << "Invalid Option. Please enter a number between 1 and 8: ";
-        std::cin >> choice;
-    }
+    int choice = readInt();
     switch(choice){
         case 1: {
             searchProduct(products, categories);

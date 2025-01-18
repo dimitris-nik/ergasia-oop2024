@@ -31,6 +31,7 @@ bool Cart::isInCart(Product* product){
 void Cart::applyDiscount(Product* product, double discount) {
     totalCost -= product->getPrice() * items[product];
     totalCost += product->getPrice() * discount * items[product];
+    std::cout << "Discount applied: " << 100 - discount * 100 << "% off on " << product->getTitle() << "!" << std::endl;
 }
 
 void Cart::checkout() {
@@ -58,6 +59,5 @@ std::ostream& operator<<(std::ostream& os, const Cart& cart) {
     os << "---CART END---" << std::endl;
     os << "Total Cost: " << std::fixed << std::setprecision(2) << cart.totalCost << std::endl << std::endl;
     return os;
-
 }
 

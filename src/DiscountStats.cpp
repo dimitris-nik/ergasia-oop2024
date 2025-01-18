@@ -33,7 +33,7 @@ void DiscountStats::nextCart() {
 }
 
 discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoyaltyDiscount) {
-    std::vector<std::pair<Product*, double>> discounts;
+    std::vector<discount> discounts;
     for (const auto& p : products_Stats) {
         if (p.second.consecutiveOrders == 3) {
             discounts.push_back({p.first, 0.8});
@@ -45,12 +45,12 @@ discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoya
             discounts.push_back({productCategory->generateRandomProduct(), 0.7});
         }
     }
-    if (ordersCompleted >= 5) {
+    if (ordersCompleted >= 5 and !hasUsedLoyaltyDiscount) {
         Product* favoriteProduct = nullptr;
         int maxAmount = 0;
         for (const auto& p : products_Stats) {
-            if (p.second.totalAmount > maxAmount) {
-                maxAmount = p.second.totalAmount;
+            if (p.second.appearedInCart > maxAmount) {
+                maxAmount = p.second.appearedInCart;
                 favoriteProduct = p.first;
             }
         }
@@ -63,4 +63,16 @@ discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoya
 
 }
 
+void DiscountStats::printDiscount(discount discount) {
+    if (discount.product == nullptr) {
+        return;
+    }
+    if (discount.multiplier == 0.8) {
+        std::cout << "You bought " << discount.product->getTitle() << " 3 times in a row in your past orders, 20% discount on your next order!" << std::endl;
+    } else if (discount.multiplier == 0.7) {
+        std::cout << "You seem to like " << discount.product->getCategory() << " products, you have a 30% discount to " << discount.product->getTitle() << " on your next order!" << std::endl; 
+    } else if (discount.multiplier == 0.6) {
+        std::cout << "You have completed 5 orders, 40% discount to your favorite product, " << discount.product->getTitle() << "! Can only be used once!" << std::endl;
+    }
+}
 

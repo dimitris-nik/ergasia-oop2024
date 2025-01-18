@@ -20,16 +20,16 @@ Eshop::~Eshop() {
 User* Eshop::login(){
     string username, password;
     cout << "Please enter your username: ";
-    cin >> username;
+    username = readString();
     cout << "Please enter your password: ";
-    cin >> password;
+    password = readString();
     User * user = users.findUser(username);
     while (user == nullptr || !user->checkPassword(password)) {
         cout << "Invalid username or password. Please try again." << endl;
         cout << "Please enter your username: ";
-        cin >> username;
+        username = readString();
         cout << "Please enter your password: ";
-        cin >> password;
+        password = readString();
         user = users.findUser(username);
     }
     return user;
@@ -41,9 +41,10 @@ User* Eshop::registers(){
     while (!exists) {
         exists = true;
         cout << "Please enter your username: ";
-        cin >> username;
+        username = readString();
         if (users.findUser(username) != nullptr) {
-            cout << "Username already exists. Please enter a different username." << endl;
+            cout << "Username already exists. Please enter a different username: ";
+            username = readString();
             exists = false;
         }
     } 
@@ -60,8 +61,8 @@ User* Eshop::registers(){
         return admin;
             
     } else {
-        auto products_Stats = DiscountStats();
-        auto customer = new Customer(username, password, 0, products_Stats);
+        auto discountStats = DiscountStats();
+        auto customer = new Customer(username, password, discountStats);
         ofstream historyFile("files/order_history/" + username + "_history.txt");
         if (!historyFile.is_open()) {
             cerr << "Error creating history file." << endl;   
@@ -78,10 +79,10 @@ void Eshop::run(){
     cout << "Welcome to the e-shop!!!" << endl;
     cout << "Do you want to login or register? (enter option): ";
     bool loggedIn = false;
-    cin >> option;
+    option = readString();
     while (option != "login" && option != "register") {
-        cout << "Invalid option. Please enter 'login' or 'register'." << endl;
-        cin >> option;
+        cout << "Invalid option. Please enter 'login' or 'register':";
+        option = readString();
     }
     
     if (option == "login") {
@@ -98,7 +99,6 @@ void Eshop::run(){
         currentUser->displayMenu();
     }
     cout << "Goodbye!" << endl;
-    saveChanges();
 }
 
 
@@ -124,13 +124,13 @@ void Eshop::loadUsers() {
         } else {
             string historyFileName = "files/order_history/" + username + "_history.txt";
             ifstream historyFile(historyFileName);
-            int orders = 0;
             auto discountStats = DiscountStats();
             if (historyFile.is_open()) {
                 string line;
                 while (getline(historyFile, line)) {
                     if (line.find("START---") != string::npos) {
-                        orders++;
+                        discountStats.nextCart();
+                        discountStats.ordersCompleted++;
                     }
                     else if (!((line.find("END---") != string::npos) or (line.find("Total Cost")!= string::npos)) && line != ""){
                         int quantity;
@@ -143,16 +143,13 @@ void Eshop::loadUsers() {
                         if (!product) continue; 
                         discountStats.updateProductStats(product, quantity);
                     }
-                    else if (line.find("END---")!= string::npos){
-                        discountStats.nextCart();
-                    }
                 }
                 historyFile.close();
             }
             else{
                 cerr << "Error opening history file." << endl;
             }
-            users.addUser(new Customer(username, password, orders, discountStats));
+            users.addUser(new Customer(username, password, discountStats));
         }
     }
     ifstream loyalDiscountsfile("files/loyal_discounts.txt");   
@@ -161,9 +158,10 @@ void Eshop::loadUsers() {
         string username, discountStr;
         getline(ss, username, '@');
         getline(ss, discountStr);
-        User* user = users.findUser(username);
+        User* user = users.findUser(trim(username));
         if (user) {
-            dynamic_cast<Customer*>(user)->setHasUsedLoyaltyDiscount(stoi(discountStr));
+            reinterpret_cast<Customer*>(user)->setHasUsedLoyaltyDiscount(stoi(discountStr));
+            reinterpret_cast<Customer*>(user)->updateCurrentDiscount(categories);
         }
     }
     file.close();
