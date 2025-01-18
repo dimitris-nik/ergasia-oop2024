@@ -125,7 +125,7 @@ void Eshop::loadUsers() {
             string historyFileName = "files/order_history/" + username + "_history.txt";
             ifstream historyFile(historyFileName);
             int orders = 0;
-            auto products_Stats = DiscountStats();
+            auto discountStats = DiscountStats();
             if (historyFile.is_open()) {
                 string line;
                 while (getline(historyFile, line)) {
@@ -141,10 +141,10 @@ void Eshop::loadUsers() {
                         title = trim(title);
                         auto product = products.findProduct(title);
                         if (!product) continue; 
-                        products_Stats.updateProductStats(product, quantity);
+                        discountStats.updateProductStats(product, quantity);
                     }
                     else if (line.find("END---")!= string::npos){
-                        products_Stats.nextCart();
+                        discountStats.nextCart();
                     }
                 }
                 historyFile.close();
@@ -152,7 +152,7 @@ void Eshop::loadUsers() {
             else{
                 cerr << "Error opening history file." << endl;
             }
-            users.addUser(new Customer(username, password, orders, products_Stats));
+            users.addUser(new Customer(username, password, orders, discountStats));
         }
     }
     ifstream loyalDiscountsfile("files/loyal_discounts.txt");   
@@ -164,9 +164,6 @@ void Eshop::loadUsers() {
         User* user = users.findUser(username);
         if (user) {
             dynamic_cast<Customer*>(user)->setHasUsedLoyaltyDiscount(stoi(discountStr));
-        }
-        else {
-            cerr << "User in loyal_discounts.txt not found, please check files." << endl;
         }
     }
     file.close();

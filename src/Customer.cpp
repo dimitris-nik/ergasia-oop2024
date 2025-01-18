@@ -8,7 +8,7 @@
 #include <algorithm>
 
 
-Customer::Customer(const std::string& username, const std::string& password, int ordersCompleted, DiscountStats products_Stats) : User(username, password, false), ordersCompleted(ordersCompleted), products_Stats(products_Stats) {}
+Customer::Customer(const std::string& username, const std::string& password, int ordersCompleted, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
 
 void Customer::displayMenu() {
     std::cout << std::endl;
@@ -189,30 +189,29 @@ void Customer::completeOrder(CategoryManager& categories){
         std::cerr << "Error opening history file." << std::endl;
         return;
     }
-    auto discount = products_Stats.getDiscount(categories, ordersCompleted, hasUsedLoyaltyDiscount);
+    auto discount = discountStats.getDiscount(categories, hasUsedLoyaltyDiscount);
     if (discount.first != nullptr) {
-        cart.applyDiscount(discount.first, discount.second);
         if (discount.second == 0.8) {
-            std::cout << "You bought " << discount.first->getTitle() << " 3 times in a row in your past orders, 20% discount applied! Can be used only in your next order, so don't miss out!" << std::endl;
+            std::cout << "You bought " << discount.first->getTitle() << " 3 times in a row in your past orders, 20% discount applied!" << std::endl;
         } else if (discount.second == 0.7) {
-            std::cout << "You seem to like " << discount.first->getCategory() << " products, you have a 30% discount applied to " << discount.first->getTitle() << "!" << std::endl; 
+            std::cout << "You seem to like " << discount.first->getCategory() << " products, you have a 30% discount to " << discount.first->getTitle() << "!" << std::endl; 
         } else if (discount.second == 0.6) {
-            std::cout << "You have completed 5 orders, 40% discount applied to your favorite product " << discount.first->getTitle() << "!" << std::endl;
+            std::cout << "You have completed 5 orders, 40% discount applied to your favorite product, " << discount.first->getTitle() << "!" << std::endl;
             hasUsedLoyaltyDiscount = true;
         }
     }
     for (const auto& item : cart.items) {
         auto &product = item.first;
         auto &quantity = item.second;
-        products_Stats.updateProductStats(product, quantity);
+        discountStats.updateProductStats(product, quantity);
     }
 
 
-    if (ordersCompleted!=0) historyFile << std::endl << std::endl;
-    cart.saveToFile(historyFile, ++ordersCompleted);
+    if (discountStats.ordersCompleted!=0) historyFile << std::endl << std::endl;
+    cart.saveToFile(historyFile, ++discountStats.ordersCompleted);
     historyFile.close();
     cart.checkout();  
-    products_Stats.nextCart();
+    discountStats.nextCart();
     std::cout << "Order completed!" << std::endl;
 }
 
@@ -244,8 +243,6 @@ bool Customer::executeCommand(ProductManager& products, CategoryManager& categor
         std::cout << "Invalid Option. Please enter a number between 1 and 8: ";
         std::cin >> choice;
     }
-    
-    
     switch(choice){
         case 1: {
             searchProduct(products, categories);

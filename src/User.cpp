@@ -46,13 +46,13 @@ void UserManager::saveUsers(const std::string& usersFile) const {
     std::ofstream file(usersFile);
     std::ofstream discountsFile("files/loyal_discounts.txt");
     if (!file.is_open()) {
-        std::cerr << "Error opening users file." << std::endl;
+        std::cerr << "Error opening users discount file." << std::endl;
         return;
     }
     for (const auto& user : users) { //there is probably a better way to do this
         file << *user.second << std::endl;
         if (dynamic_cast<Customer*>(user.second)) {
-            discountsFile << user.first << "@" << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount() << std::endl;
+            discountsFile << user.first << " @ " << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount() << std::endl;
         }
     }
     

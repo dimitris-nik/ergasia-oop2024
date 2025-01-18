@@ -7,9 +7,9 @@
 #include <string>
 class Customer : public User {
     Cart cart;
-    int ordersCompleted;
-    DiscountStats products_Stats;
+    DiscountStats discountStats;
     bool hasUsedLoyaltyDiscount = false;
+    discount currDiscount;
     void updateProductStats();
 public:
     Customer(const std::string& username, const std::string& password, int ordersCompleted, DiscountStats productStats);

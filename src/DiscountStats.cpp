@@ -4,14 +4,14 @@
 
 void DiscountStats::updateProductStats(Product* product, int quantity) {
     categoriesCounter[product->getCategory()] += quantity;
+    products_Stats[product].appearedInCart += 1;
+    product->increaseAppearedInCart();
     if (products_Stats.find(product) == products_Stats.end()) {
         products_Stats[product].consecutiveOrders = 1;
         products_Stats[product].totalAmount = quantity;
         products_Stats[product].foundInLastCart = true;
-        product->increaseAppearedInCart();
     } else {
         if (!products_Stats[product].foundInLastCart) {
-            product->increaseAppearedInCart();
             products_Stats[product].foundInLastCart = true;
         }
         products_Stats[product].consecutiveOrders++;
@@ -32,7 +32,7 @@ void DiscountStats::nextCart() {
     categoriesCounter.clear();
 }
 
-std::pair<Product*, double> DiscountStats::getDiscount(CategoryManager& categories, int ordersCompleted, int hasUsedLoyaltyDiscount) {
+discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoyaltyDiscount) {
     std::vector<std::pair<Product*, double>> discounts;
     for (const auto& p : products_Stats) {
         if (p.second.consecutiveOrders == 3) {
