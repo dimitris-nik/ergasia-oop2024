@@ -1,4 +1,5 @@
 #include "../include/User.h"
+#include "../include/Customer.h"
 #include <iostream>
 #include <fstream>
 User::User(std::string username, std::string password, bool isAdmin) : username(username), password(password), isAdmin(isAdmin) {} // we only need initializer list here
@@ -43,12 +44,19 @@ UserManager::~UserManager() {
 }
 void UserManager::saveUsers(const std::string& usersFile) const {
     std::ofstream file(usersFile);
+    std::ofstream discountsFile("files/loyal_discounts.txt");
     if (!file.is_open()) {
         std::cerr << "Error opening users file." << std::endl;
         return;
     }
-    for (const auto& user : users) {
+    for (const auto& user : users) { //there is probably a better way to do this
         file << *user.second << std::endl;
+        if (dynamic_cast<Customer*>(user.second)) {
+            discountsFile << user.first << "@" << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount() << std::endl;
+        }
     }
+    
     file.close();
+    discountsFile.close();
+    
 }

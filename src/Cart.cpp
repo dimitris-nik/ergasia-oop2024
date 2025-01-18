@@ -23,6 +23,15 @@ bool Cart::updateProduct(Product* product, int quantity){
     }
     return false;
 }
+ 
+bool Cart::isInCart(Product* product){
+    return items.find(product) != items.end();
+}  
+
+void Cart::applyDiscount(Product* product, double discount) {
+    totalCost -= product->getPrice() * items[product];
+    totalCost += product->getPrice() * discount * items[product];
+}
 
 void Cart::checkout() {
     for (const auto& item : items) {

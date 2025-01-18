@@ -41,6 +41,13 @@ void Category::removeProduct(Product* product){
     }
 }
 
+Product* Category::generateRandomProduct(){
+    if (products.empty()) {
+        return nullptr;
+    }
+    return products[rand() % products.size()];
+}
+
 void Category::displaySubcategories() const{
     for (const auto& subcat : subcategories) {
         std::cout << subcat->name << " ";
@@ -103,12 +110,12 @@ Category* CategoryManager::findCategory(const std::string& category) const{
 void CategoryManager::addProduct(Product* product, const std::string& category, const std::string& subcategory){
     Category* cat = findCategory(category);
     if (cat == nullptr) {
-        std::cout << "Category " << category << " not found." << std::endl; // this should never happen
+        std::cerr << "Product " << product->getTitle() << " has invalid category " << category << std::endl;
         return;
     }
     Category* subcat = cat->findSubcategory(subcategory);
     if (subcat == nullptr) {
-        std::cout << "Subcategory " << subcategory << " not found." << std::endl; // this should never happen
+        std::cerr << "Product " << product->getTitle() << " has invalid subcategory " << subcategory << std::endl;
         return;
     }
     cat->addProduct(product);

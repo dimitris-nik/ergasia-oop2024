@@ -60,7 +60,13 @@ User* Eshop::registers(){
         return admin;
             
     } else {
-        auto customer = new Customer(username, password, 0);
+        auto products_Stats = DiscountStats();
+        auto customer = new Customer(username, password, 0, products_Stats);
+        ofstream historyFile("files/order_history/" + username + "_history.txt");
+        if (!historyFile.is_open()) {
+            cerr << "Error creating history file." << endl;   
+            return nullptr;
+        }
         users.addUser(customer);
         return customer;
     }
@@ -82,6 +88,10 @@ void Eshop::run(){
         currentUser = login();
     } else if (option == "register") {
         currentUser = registers();
+    }
+    if (currentUser == nullptr) {
+        cout << "Error logging in or registering. Exiting..." << endl;
+        return;
     }
     currentUser->displayMenu();
     while (currentUser->executeCommand(products, categories)) {
@@ -112,66 +122,51 @@ void Eshop::loadUsers() {
         if(isAdmin){
             users.addUser(new Admin(username, password));
         } else {
-            std::string historyFileName = "files/order_history/" + username + "_history.txt";
-            std::ifstream historyFile(historyFileName);
+            string historyFileName = "files/order_history/" + username + "_history.txt";
+            ifstream historyFile(historyFileName);
             int orders = 0;
-            std::unordered_map<std::string , std::array<int, 3>> productStats; // Product, <consecutive orders, total amount, found in last cart>
+            auto products_Stats = DiscountStats();
             if (historyFile.is_open()) {
-                std::string line;
-                while (std::getline(historyFile, line)) {
-                    if (line.find("START---") != std::string::npos) {
+                string line;
+                while (getline(historyFile, line)) {
+                    if (line.find("START---") != string::npos) {
                         orders++;
                     }
-                    else if (!((line.find("END---") != std::string::npos) or (line.find("Total Cost")!= std::string::npos)) && line!="" ){
+                    else if (!((line.find("END---") != string::npos) or (line.find("Total Cost")!= string::npos)) && line != ""){
                         int quantity;
-                        std::string title;
-                        std::stringstream ss(line);
+                        string title;
+                        stringstream ss(line);
                         ss >> quantity;
                         getline(ss, title);
                         title = trim(title);
-                        if (productStats.find(title) == productStats.end()) {
-                            productStats[title] = {1, quantity, true};
-                            Product*  prod = products.findProduct(title);
-                            if (prod != nullptr) {
-                                prod->increaseAppearedInCart();
-                            }
-                        } else {
-                            // Check if product was found in current cart
-                            if (!productStats[title][2]) {
-                                Product*  prod = products.findProduct(title);
-                                if (prod != nullptr) {
-                                    prod->increaseAppearedInCart();
-                                }
-                                productStats[title][2] = true;
-                            }
-                            productStats[title][0]++;
-                            productStats[title][1] += quantity;
-                        }
+                        auto product = products.findProduct(title);
+                        if (!product) continue; 
+                        products_Stats.updateProductStats(product, quantity);
                     }
-                    else if (line.find("END---")!= std::string::npos){
-                        // Reset consecutive orders for false products or products with 4 consecutive orders (The 4th order is the one that the discount was applied)
-                        for (auto& p : productStats) {
-                            auto& stats = p.second;
-                            if (!stats[2] or stats[0] == 4) {
-                                stats[0] = 0;
-                            }
-                        }
-                        // Set all products to false
-                        for (auto& p : productStats) {
-                            p.second[2] = false;
-                        }
+                    else if (line.find("END---")!= string::npos){
+                        products_Stats.nextCart();
                     }
                 }
                 historyFile.close();
-
             }
             else{
                 cerr << "Error opening history file." << endl;
             }
-            
-
-
-            users.addUser(new Customer(username, password, orders));
+            users.addUser(new Customer(username, password, orders, products_Stats));
+        }
+    }
+    ifstream loyalDiscountsfile("files/loyal_discounts.txt");   
+    while (getline(loyalDiscountsfile, line)) {
+        stringstream ss(line);
+        string username, discountStr;
+        getline(ss, username, '@');
+        getline(ss, discountStr);
+        User* user = users.findUser(username);
+        if (user) {
+            dynamic_cast<Customer*>(user)->setHasUsedLoyaltyDiscount(stoi(discountStr));
+        }
+        else {
+            cerr << "User in loyal_discounts.txt not found, please check files." << endl;
         }
     }
     file.close();
@@ -209,46 +204,51 @@ void Eshop::loadProducts() {
 }
 
 void Eshop::loadCategories() {
-    std::ifstream file(categoriesFile);
-    std::string line;
+    ifstream file(categoriesFile);
+    string line;
 
     if (!file.is_open()) {
-        std::cerr << "Error opening category file." << std::endl;
+        cerr << "Error opening category file." << endl;
         return;
     }
 
-    std::ifstream dFile(discountsFile);
+    ifstream dFile(discountsFile);
     if (!dFile.is_open()) {
-        std::cerr << "Error opening discounts file." << std::endl;
+        cerr << "Error opening discounts file." << endl;
         return;
     }
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string categoryName;
-        std::string subcategoriesLine;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string categoryName;
+        string subcategoriesLine;
 
-        std::getline(ss, categoryName, '(');
+        getline(ss, categoryName, '(');
         categoryName = trim(categoryName);
 
         Category* category = categories.addCategory(categoryName);
 
-        if (std::getline(ss, subcategoriesLine, ')')) {
-            std::stringstream subcats(subcategoriesLine);
-            std::string subcategory;
-            while (std::getline(subcats, subcategory, '@')) {
+        if (getline(ss, subcategoriesLine, ')')) {
+            stringstream subcats(subcategoriesLine);
+            string subcategory;
+            while (getline(subcats, subcategory, '@')) {
                 category->addSubcategory(trim(subcategory));
             }
         }
-        // Read discount
-        std::string discountLine;
-        std::getline(dFile, discountLine);
-        std::stringstream discountStream(discountLine);
-        std::string discountStr;
-        std::getline(discountStream, discountStr, '@');
-        // Ignore category name
-        std::getline(discountStream, discountStr);
-        int discount = std::stoi(discountStr);
-        category->setAmountForDiscount(discount);
+        
+    }
+    while (getline(dFile, line)) {
+        stringstream ss(line);
+        string categoryName;
+        string amountStr;
+        getline(ss, categoryName, '@');
+        getline(ss, amountStr, '@');
+        Category* category = categories.findCategory(trim(categoryName));
+        if (category) {
+            category->setAmountForDiscount(stoi(amountStr));
+        }
+        else {
+            cerr << "Category in discounts.txt not found, please check files." << endl;
+        }
     }
     file.close();
 }

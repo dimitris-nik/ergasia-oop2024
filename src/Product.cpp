@@ -18,7 +18,7 @@ void Product::displayProduct() const {
     std::cout << "Category: " << category << std::endl;
     std::cout << "Subcategory: " << subcategory << std::endl;
     std::cout << "Price per " << (measurementType == "Kg" ? "Kg" : "unit") << ": " << std::fixed << std::setprecision(2) << price << "€" << std::endl;
-    std::cout << "Total " << (measurementType == "Kg" ? "Kg" : "units") << " available: " << amount << std::endl << std::endl;
+    std::cout << "Total " << (measurementType == "Kg" ? "Kg" : "units") << " available: " << amount << std::endl;
 }
 
 
@@ -127,7 +127,7 @@ void ProductManager::showUnavailableProducts() const {
         }
     }
     if (!hasUnavailableProducts) {
-        std::cout << "No unavailable products." << std::endl;
+        std::cout << "No unavailable products." << std::endl << std::endl;
     }
 }
 
@@ -144,7 +144,7 @@ void ProductManager::saveProducts(const std::string& productsFile) const {
 }
 
 void ProductManager::showTopProducts() const {
-    std::cout << "Top 5 Products:" << std::endl;
+    std::cout << "Top 3 Products:" << std::endl;
     std::vector<Product*> sortedProducts;
     for (const auto& product : products) {
         sortedProducts.push_back(product.second);
@@ -152,8 +152,8 @@ void ProductManager::showTopProducts() const {
     std::sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
         return a->getAppearedInCart() > b->getAppearedInCart();
     });
-    for (int i = 0; i < 5 && i < sortedProducts.size(); i++) {
+    for (int i = 0; i < 3 && i < sortedProducts.size(); i++) {
         sortedProducts[i]->displayProduct();
-        std::cout << "Times appeared in orders: " << sortedProducts[i]->getAppearedInCart() << std::endl;
+        std::cout << "Times appeared in orders: " << sortedProducts[i]->getAppearedInCart() << std::endl << std::endl;
     }
 }
