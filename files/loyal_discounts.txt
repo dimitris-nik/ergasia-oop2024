@@ -1,3 +1,2 @@
 user2 @ 0
-_user_ @ 0
-user1 @ 0
+user1 @ 1
