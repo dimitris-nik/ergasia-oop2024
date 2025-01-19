@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 void Cart::addProduct(Product* product, int quantity) {
     items[product] += quantity;
     totalCost += product->getPrice() * quantity;
@@ -31,7 +33,7 @@ bool Cart::isInCart(Product* product){
 void Cart::applyDiscount(Product* product, double discount) {
     totalCost -= product->getPrice() * items[product];
     totalCost += product->getPrice() * discount * items[product];
-    std::cout << "Discount applied: " << 100 - discount * 100 << "% off on " << product->getTitle() << "!" << std::endl;
+    cout << "Discount applied: " << 100 - discount * 100 << "% off on " << product->getTitle() << "!" << endl;
 }
 
 void Cart::checkout() {
@@ -42,22 +44,23 @@ void Cart::checkout() {
     totalCost = 0;
 }
 
-void Cart::saveToFile(std::ostream& os, int number) { // this is necessary unfortunately to save numbered cart to file, would be cleaner if i could only use << operator :(
-    os << "---CART " << number <<" START---" << std::endl;
+void Cart::saveToFile(ostream& os, int number) { // this is necessary unfortunately to save numbered cart to file, would be cleaner if i could only use << operator :(
+    os << "---CART " << number <<" START---" << endl;
     for (const auto& item : items) {
-        os << item.second << " " << item.first->getTitle() << std::endl;
+        os << item.second << " " << item.first->getTitle() << endl;
     }
-    os << "---CART " << number <<" END---" << std::endl;
-    os << "Total Cost: " << std::fixed << std::setprecision(2) << totalCost;
+    os << "---CART " << number <<" END---" << endl;
+    os << "Total Cost: " << fixed << setprecision(2) << totalCost;
 }
 
-std::ostream& operator<<(std::ostream& os, const Cart& cart) {
-    os << "---CART START---" << std::endl;
+ostream& operator<<(ostream& os, const Cart& cart) {
+    cout << endl;
+    os << "---CART START---" << endl;
     for (const auto& item : cart.items) {
-        os << item.second << " " << item.first->getTitle() << std::endl;
+        os << item.second << " " << item.first->getTitle() << endl;
     }
-    os << "---CART END---" << std::endl;
-    os << "Total Cost: " << std::fixed << std::setprecision(2) << cart.totalCost << std::endl << std::endl;
+    os << "---CART END---" << endl;
+    os << "Total Cost: " << fixed << setprecision(2) << cart.totalCost << endl << endl;
     return os;
 }
 

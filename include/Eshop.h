@@ -15,9 +15,9 @@ protected:
     UserManager users;
     ProductManager products;
     CategoryManager categories;
-    const std::string& usersFile;
-    const std::string& productsFile;
     const std::string& categoriesFile;
+    const std::string& productsFile;
+    const std::string& usersFile;
     const std::string& discountsFile;
     User* login();
     User* registers();

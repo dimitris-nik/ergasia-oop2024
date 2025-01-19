@@ -6,6 +6,7 @@
 #include "DiscountStats.h"
 #include <vector>
 #include <string>
+
 class Customer : public User {
     Cart cart;
     DiscountStats discountStats;

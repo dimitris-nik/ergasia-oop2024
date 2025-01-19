@@ -1,11 +1,13 @@
 #include "../include/Eshop.h"
 #include <iostream>
 
+using namespace std;
+
 int main(int argc, char* argv[]) {
 
-    std::string categoriesFile;
-    std::string productsFile;
-    std::string usersFile;
+    string categoriesFile;
+    string productsFile;
+    string usersFile;
 
     if (argc != 4) { //default files
         categoriesFile = "files/categories.txt";

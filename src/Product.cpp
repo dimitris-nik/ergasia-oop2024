@@ -7,45 +7,47 @@
 #include "../include/utils.h"
 #include <vector>
 
-Product::Product(std::string title, std::string description, std::string category, std::string subcategory, double price, std::string measurementType, int amount)
+using namespace std;
+
+Product::Product(string title, string description, string category, string subcategory, double price, string measurementType, int amount)
     : title(title), description(description), category(category), subcategory(subcategory),
     price(price), measurementType(measurementType), amount(amount) {} 
     // all we need is the initializer list
 
 void Product::displayProduct() const {
-    std::cout << "-----" << title << "-----" << std::endl;
-    std::cout << "Description: " << description << std::endl;
-    std::cout << "Category: " << category << std::endl;
-    std::cout << "Subcategory: " << subcategory << std::endl;
-    std::cout << "Price per " << (measurementType == "Kg" ? "Kg" : "unit") << ": " << std::fixed << std::setprecision(2) << price << "€" << std::endl;
-    std::cout << "Total " << (measurementType == "Kg" ? "Kg" : "units") << " available: " << amount << std::endl;
+    cout << "-----" << title << "-----" << endl;
+    cout << "Description: " << description << endl;
+    cout << "Category: " << category << endl;
+    cout << "Subcategory: " << subcategory << endl;
+    cout << "Price per " << (measurementType == "Kg" ? "Kg" : "unit") << ": " << fixed << setprecision(2) << price << "€" << endl;
+    cout << "Total " << (measurementType == "Kg" ? "Kg" : "units") << " available: " << amount << endl;
 }
 
 
-std::ostream& operator<<(std::ostream& os, const Product& product) { 
+ostream& operator<<(ostream& os, const Product& product) { 
     //overload operator << in Product class to save products to file
     os << product.title << " @ " << product.description << " @ "
        << product.category << " @ " << product.subcategory << " @ "
-       << std::fixed << std::setprecision(2) << product.price << " @ "
+       << fixed << setprecision(2) << product.price << " @ "
        << product.measurementType << " @ " << product.amount; 
     return os;
 }
-std::string Product::getTitle() const {
+string Product::getTitle() const {
     return title;
 }
-std::string Product::getCategory() const {
+string Product::getCategory() const {
     return category;
 }
-std::string Product::getSubcategory() const {
+string Product::getSubcategory() const {
     return subcategory;
 }
-void Product::setTitle(const std::string& title) {
+void Product::setTitle(const string& title) {
     this->title = title;
 }
-void Product::setCategory(const std::string& category) {
+void Product::setCategory(const string& category) {
     this->category = category;
 }
-void Product::setSubcategory(const std::string& subcategory) {
+void Product::setSubcategory(const string& subcategory) {
     this->subcategory = subcategory;
 }
 
@@ -56,17 +58,17 @@ void Product::setPrice(double price) {
     this->price = price;
 }
 
-std::string Product::getDescription() const {
+string Product::getDescription() const {
     return description;
 }
-void Product::setDescription(const std::string& description) {
+void Product::setDescription(const string& description) {
     this->description = description;
 }
 
-std::string Product::getMeasurementType() const {
+string Product::getMeasurementType() const {
     return measurementType;
 }
-void Product::setMeasurementType(const std::string& measurementType) {
+void Product::setMeasurementType(const string& measurementType) {
     this->measurementType = measurementType;
 }
 
@@ -97,7 +99,7 @@ bool ProductManager::addProduct(Product* product) {
     products[product->getTitle()] = product;
     return true;
 }
-bool ProductManager::removeProduct(const std::string& title) {
+bool ProductManager::removeProduct(const string& title) {
     if (products.find(title) == products.end()) {
         return false;
     }
@@ -107,11 +109,12 @@ bool ProductManager::removeProduct(const std::string& title) {
 
 void ProductManager::displayProducts() const {
     for (const auto& product : products) {
-        std::cout << "\"" << product.first << "\" ";
+        cout << "\"" << product.first << "\" ";
     }
+    cout << endl;
 }
 
-Product* ProductManager::findProduct(const std::string& title) {
+Product* ProductManager::findProduct(const string& title) {
     if (products.find(title) == products.end()) {
         return nullptr;
     }
@@ -127,33 +130,38 @@ void ProductManager::showUnavailableProducts() const {
         }
     }
     if (!hasUnavailableProducts) {
-        std::cout << "No unavailable products." << std::endl << std::endl;
+        cout << "No unavailable products." << endl << endl;
     }
-}
-
-void ProductManager::saveProducts(const std::string& productsFile) const {
-    std::ofstream file(productsFile);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file." << std::endl;
-        return;
-    }
-    for (const auto& product : products) {
-        file << *(product.second) << std::endl;
-    }
-    file.close();
 }
 
 void ProductManager::showTopProducts() const {
-    std::cout << "Top 3 Products:" << std::endl;
-    std::vector<Product*> sortedProducts;
+    cout << "Top 3 Products:" << endl;
+    vector<Product*> sortedProducts;
     for (const auto& product : products) {
         sortedProducts.push_back(product.second);
     }
-    std::sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
+    sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
         return a->getAppearedInCart() > b->getAppearedInCart();
     });
-    for (int i = 0; i < 3 && i < sortedProducts.size(); i++) {
+    for (size_t i = 0; i < 3 && i < sortedProducts.size(); i++) {
         sortedProducts[i]->displayProduct();
-        std::cout << "Times appeared in orders: " << sortedProducts[i]->getAppearedInCart() << std::endl << std::endl;
+        cout << "Times appeared in orders: " << sortedProducts[i]->getAppearedInCart() << endl << endl;
     }
+}
+
+void ProductManager::saveProducts(const string& productsFile) const {
+    ofstream file(productsFile);
+    if (!file.is_open()) {
+        cerr << "Error opening file." << endl;
+        return;
+    }
+    bool first = true;
+    for (const auto& product : products) {
+        if (!first) {
+            file << endl;
+        }
+        file << *(product.second);
+        first = false;
+    }
+    file.close();
 }

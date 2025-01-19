@@ -4,92 +4,94 @@
 #include <map>
 #include <limits>
 #include <algorithm>
+using namespace std;
 
-Admin::Admin(std::string username, std::string password) : User(username, password, true) {}
+Admin::Admin(string username, string password) : User(username, password, true) {}
 
 void Admin::displayMenu() {
-    std::cout << "---Admin Menu---" << std::endl;
-    std::cout << "1. Add Product" << std::endl;
-    std::cout << "2. Edit Product" << std::endl;
-    std::cout << "3. Remove Product" << std::endl;
-    std::cout << "4. Search Product" << std::endl;
-    std::cout << "5. Show Unavailable Products" << std::endl;
-    std::cout << "6. Show Top 5 Products" << std::endl;
-    std::cout << "7. Exit" << std::endl;
-    std::cout << "Enter your choice: ";
+    cout << endl;
+    cout << "---Admin Menu---" << endl;
+    cout << "1. Add Product" << endl;
+    cout << "2. Edit Product" << endl;
+    cout << "3. Remove Product" << endl;
+    cout << "4. Search Product" << endl;
+    cout << "5. Show Unavailable Products" << endl;
+    cout << "6. Show Top 5 Products" << endl;
+    cout << "7. Exit" << endl;
+    cout << "Enter your choice: ";
 }
 
 void Admin::addProduct(ProductManager& products, CategoryManager& categories){
-    std::string title, description, categoryStr, subcategoryStr, measurementType;
+    string title, description, categoryStr, subcategoryStr, measurementType;
     Category* productCategory;
     Category* productSubcategory;
     double price;
     int amount;
 
-    std::cout << "Give product title: ";
+    cout << "Give product title: ";
     title = readString();
     while(products.findProduct(title)){
-        std::cout << "Product with this title already exists. Please enter a different title: ";
+        cout << "Product with this title already exists. Please enter a different title: ";
         title = readString();
     }
-    std::cout << "Give product description: ";
+    cout << "Give product description: ";
     description = readString();
 
-    std::cout << "Give one of the following categories: ";
+    cout << "Give one of the following categories: ";
     categories.displayCategories();
     categoryStr = readString();
     productCategory = categories.findCategory(categoryStr);
     while (!productCategory) {
-        std::cout << "Invalid Category. Please choose from the above." << std::endl;
+        cout << "Invalid Category. Please choose from the above." << endl;
         categoryStr = readString();
         productCategory = categories.findCategory(categoryStr);
     }
-    std::cout << "Give one of the following subcategories: ";
+    cout << "Give one of the following subcategories: ";
 
     productCategory->displaySubcategories();
     subcategoryStr = readString();
     productSubcategory = productCategory->findSubcategory(subcategoryStr);
     while (!productSubcategory) {
-        std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
+        cout << "Invalid Subcategory. Please choose from the above." << endl;
         subcategoryStr = readString();
         productSubcategory = productCategory->findSubcategory(subcategoryStr);
     }
-    std::cout << "Give product price: ";
+    cout << "Give product price: ";
     price = readDouble();
-    std::cout << "Give product measurement type: ";
+    cout << "Give product measurement type: ";
     measurementType = readString();    
 
-    std::cout << "Give product amount: ";
+    cout << "Give product amount: ";
     amount = readInt();
 
     Product * product = new Product(title, description, categoryStr, subcategoryStr, price, measurementType, amount);
     products.addProduct(product);
     categories.addProduct(product, categoryStr, subcategoryStr);
-    std::cout << "Product added successfully!" << std::endl;
+    cout << "Product added successfully!" << endl;
 }
 
 void Admin::editProduct(ProductManager& products, CategoryManager& categories){
-    std::string title;
-    std::cout << "Enter the title of the product you want to edit: ";
+    string title;
+    cout << "Enter the title of the product you want to edit: ";
     title = readString();
     if(!products.findProduct(title)){
-        std::cout << "Product not found." << std::endl;
+        cout << "Product not found." << endl;
         return;
     }
     Product* product = products.findProduct(title);
-    std::cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << std::endl;
+    cout << "Enter number of field you want to edit: 1.Title 2.Description 3.Category and Subcategory 4.Price 5.Available Kg 6.Nothing" << endl;
     int choice = readInt();
     while (choice < 1 || choice > 6) {
-        std::cout << "Invalid Option. Please enter a number between 1 and 6: ";
+        cout << "Invalid Option. Please enter a number between 1 and 6: ";
         choice = readInt();
     }
     switch(choice){
         case 1: {
-            std::string newTitle;
-            std::cout << "Enter new title: ";
+            string newTitle;
+            cout << "Enter new title: ";
             newTitle = readString();
             while (products.findProduct(newTitle)) {
-                std::cout << "Product with this title already exists. Please enter a different title: ";
+                cout << "Product with this title already exists or you typed the same title. Please enter a different title: ";
                 newTitle = readString();
             }
             products.removeProduct(product->getTitle());
@@ -98,27 +100,27 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
             break;
         }
         case 2: {
-            std::string newDescription;
-            std::cout << "Enter new description: ";
+            string newDescription;
+            cout << "Enter new description: ";
             newDescription = readString();
             product->setDescription(newDescription);
             break;
         }
         case 3: {
-            std::string newCategory;
-            std::string newSubcategory;
-            std::cout << "Enter new category: ";
+            string newCategory;
+            string newSubcategory;
+            cout << "Enter new category: ";
             categories.displayCategories();
             newCategory = readString();
             while (!categories.findCategory(newCategory)) {
-                std::cout << "Invalid Category. Please choose from the above." << std::endl;
+                cout << "Invalid Category. Please choose from the above." << endl;
                 newCategory = readString();
             }
-            std::cout << "Enter new subcategory: ";
+            cout << "Enter new subcategory: ";
             categories.findCategory(newCategory)->displaySubcategories();
             newSubcategory = readString();
             while (!categories.findCategory(newCategory)->findSubcategory(newSubcategory)) {
-                std::cout << "Invalid Subcategory. Please choose from the above." << std::endl;
+                cout << "Invalid Subcategory. Please choose from the above." << endl;
                 newSubcategory = readString();
             }
             categories.removeProduct(product);
@@ -129,10 +131,10 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
         }
         case 4: {
             double newPrice;
-            std::cout << "Enter new price: ";
+            cout << "Enter new price: ";
             newPrice = readDouble();
             while (newPrice < 0) {
-                std::cout << "Invalid price. Please enter a valid price: ";
+                cout << "Invalid price. Please enter a valid price: ";
                 newPrice = readDouble();
             }
             product->setPrice(newPrice);
@@ -140,10 +142,10 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
         }
         case 5: {
             int newAmount;
-            std::cout << "Enter new amount: ";
+            cout << "Enter new amount: ";
             newAmount = readInt();
             while (newAmount < 0) {
-                std::cout << "Invalid amount. Please enter a valid amount: ";
+                cout << "Invalid amount. Please enter a valid amount: ";
                 newAmount = readInt();
             }
             product->setAmount(newAmount);
@@ -153,20 +155,20 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
             break;
         }
         default: {
-            std::cout << "Invalid Option." << std::endl;
+            cout << "Invalid Option." << endl;
             return;
         }
     }
-    std::cout << "Product updated!" << std::endl;
+    cout << "Product updated!" << endl;
 
 }
 
 void Admin::removeProduct(ProductManager& products, CategoryManager& categories){
-    std::string title;
-    std::cout << "Enter the title of the product you want to remove: ";
+    string title;
+    cout << "Enter the title of the product you want to remove: ";
     title = readString();
     if(!products.findProduct(title)){
-        std::cout << "Product not found." << std::endl;
+        cout << "Product not found." << endl;
         return;
     }
     Product* product = products.findProduct(title);
@@ -177,44 +179,44 @@ void Admin::removeProduct(ProductManager& products, CategoryManager& categories)
 
 
 void Admin::searchProduct(ProductManager& products, CategoryManager& categories){
-    std::cout << "1. Search for a specific product (by title)." << std::endl;
-    std::cout << "2. View the products of a specific category." << std::endl;
-    std::cout << "3. Show all the available products." << std::endl;
-    std::cout << "Enter your choice: ";
+    cout << "1. Search for a specific product (by title)." << endl;
+    cout << "2. View the products of a specific category." << endl;
+    cout << "3. Show all the available products." << endl;
+    cout << "Enter your choice: ";
     int choice;
     choice = readInt();
     while (choice < 1 || choice > 3) {
-        std::cout << "Invalid Option. Please enter a number between 1 and 3: ";
+        cout << "Invalid Option. Please enter a number between 1 and 3: ";
         choice = readInt();
     }
     switch(choice){
         case 1: {
-            std::string titleSearch;
-            std::cout << "Enter title to search: ";
+            string titleSearch;
+            cout << "Enter title to search: ";
             titleSearch = readString();
             if (products.findProduct(titleSearch)) {
                 products.findProduct(titleSearch)->displayProduct();
             } else {
-                std::cout << "Product not found." << std::endl;
+                cout << "Product not found." << endl;
             }
             break;
         }
         case 2: {
-            std::string categorySearch;
-            std::string subcategorySearch;
-            std::cout << "Enter category to search: ";
+            string categorySearch;
+            string subcategorySearch;
+            cout << "Enter category to search: ";
             categorySearch = readString();
             auto searchCategory = categories.findCategory(categorySearch);
             while (!searchCategory) {
-                std::cout << "Invalid Category. Please choose from the above." << std::endl;
+                cout << "Invalid Category. Please choose from the above." << endl;
                 categorySearch = readString();
                 searchCategory = categories.findCategory(categorySearch);
             }
-            std::cout << "Enter subcategory to search (leave empty for all subcategories): ";
+            cout << "Enter subcategory to search (leave empty for all subcategories): ";
             subcategorySearch = readString();
             auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             while (!subcategorySearch.empty() && !searchSubcategory) {
-                std::cout << "Invalid Subcategory. Please choose from the above, or leave empty." << std::endl;
+                cout << "Invalid Subcategory. Please choose from the above, or leave empty." << endl;
                 subcategorySearch = readString();
                 searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             }
@@ -226,21 +228,21 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
             break;
         }
         case 3: {
-            std::cout << "Results: ";
+            cout << "Results: ";
             products.displayProducts();
-            std::cout << std::endl;
-            std::cout << "Select a product title: ";
-            std::string selectedTitle;
+            cout << endl;
+            cout << "Select a product title: ";
+            string selectedTitle;
             selectedTitle = readString();
             while (!products.findProduct(selectedTitle)) {
-                std::cout << "Invalid Product. Please choose from the above." << std::endl;
+                cout << "Invalid Product. Please choose from the above." << endl;
                 selectedTitle = readString();
             }
             products.findProduct(selectedTitle)->displayProduct();
             break;
         }
         default: {
-            std::cout << "Invalid Option." << std::endl;
+            cout << "Invalid Option." << endl;
             break;
         }
     }
@@ -251,7 +253,7 @@ void Admin::searchProduct(ProductManager& products, CategoryManager& categories)
 bool Admin::executeCommand(ProductManager& products, CategoryManager& categories){
     int choice = readInt();
     while (choice < 1 || choice > 7) {
-        std::cout << "Invalid Option. Please enter a number between 1 and 7: ";
+        cout << "Invalid Option. Please enter a number between 1 and 7: ";
         choice = readInt();
     }
     switch(choice){
@@ -283,7 +285,7 @@ bool Admin::executeCommand(ProductManager& products, CategoryManager& categories
             return false;
         }
         default: {
-            std::cout << "Invalid Option." << std::endl;
+            cout << "Invalid Option." << endl;
             break;
         }
     }

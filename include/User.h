@@ -15,8 +15,8 @@ public:
     virtual ~User() = default;
     std::string getUsername() const;
     virtual void displayMenu() = 0; // Pure virtual function for menu display
-    virtual bool executeCommand(ProductManager& products, CategoryManager& categories) = 0; // Pure virtual function to execute user choice
-    bool checkPassword(std::string& password) const;
+    virtual bool executeCommand(ProductManager& products, CategoryManager& categories) = 0; // Pure virtual function to execute user commands
+    bool checkPassword(std::string& password) const; //for login
     friend std::ostream& operator<<(std::ostream& os, const User& user);
 };
 

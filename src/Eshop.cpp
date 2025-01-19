@@ -78,7 +78,6 @@ void Eshop::run(){
     User* currentUser = nullptr;
     cout << "Welcome to the e-shop!!!" << endl;
     cout << "Do you want to login or register? (enter option): ";
-    bool loggedIn = false;
     option = readString();
     while (option != "login" && option != "register") {
         cout << "Invalid option. Please enter 'login' or 'register':";
@@ -93,6 +92,10 @@ void Eshop::run(){
     if (currentUser == nullptr) {
         cout << "Error logging in or registering. Exiting..." << endl;
         return;
+    }
+    else {
+        cout << endl;
+        cout << "Welcome, " << currentUser->getUsername() << "!" << endl;
     }
     currentUser->displayMenu();
     while (currentUser->executeCommand(products, categories)) {

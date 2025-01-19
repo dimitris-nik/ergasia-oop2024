@@ -2,18 +2,21 @@
 #include "../include/Customer.h"
 #include <iostream>
 #include <fstream>
-User::User(std::string username, std::string password, bool isAdmin) : username(username), password(password), isAdmin(isAdmin) {} // we only need initializer list here
 
-bool User::checkPassword(std::string& password) const {
+using namespace std;
+
+User::User(string username, string password, bool isAdmin) : username(username), password(password), isAdmin(isAdmin) {} // we only need initializer list here
+
+bool User::checkPassword(string& password) const {
     return this->password == password;
 }
 
-std::ostream& operator<<(std::ostream& os, const User& user) {
+ostream& operator<<(ostream& os, const User& user) {
     os << user.username + "," + user.password + "," + (user.isAdmin ? "1" : "0");
     return os;
 }
 
-std::string User::getUsername() const {
+string User::getUsername() const {
     return username;
 }
 
@@ -21,7 +24,7 @@ void UserManager::addUser(User* user) {
     users[user->getUsername()] = user; 
 }
 
-void UserManager::removeUser(const std::string& username) {
+void UserManager::removeUser(const string& username) {
     auto it = users.find(username);
     if (it != users.end()) {
         delete it->second;
@@ -29,7 +32,7 @@ void UserManager::removeUser(const std::string& username) {
     }
 }
 
-User * UserManager::findUser(const std::string& username) const {
+User * UserManager::findUser(const string& username) const {
     auto it = users.find(username);
     if (it != users.end()) {
         return it->second;
@@ -42,20 +45,29 @@ UserManager::~UserManager() {
         delete user.second;
     }
 }
-void UserManager::saveUsers(const std::string& usersFile) const {
-    std::ofstream file(usersFile);
-    std::ofstream discountsFile("files/loyal_discounts.txt");
+void UserManager::saveUsers(const string& usersFile) const {
+    ofstream file(usersFile);
+    ofstream discountsFile("files/loyal_discounts.txt");
     if (!file.is_open()) {
-        std::cerr << "Error opening users discount file." << std::endl;
+        cerr << "Error opening users discount file." << endl;
         return;
     }
-    for (const auto& user : users) { //there is probably a better way to do this
-        file << *user.second << std::endl;
-        if (dynamic_cast<Customer*>(user.second)) {
-            discountsFile << user.first << " @ " << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount() << std::endl;
+    bool first = true;
+    bool first_customer = true;
+    for (const auto& user : users) { // we need to save the users and their loyalty discounts
+        if (!first) {
+            file << endl;
         }
+        file << *user.second;
+        if (dynamic_cast<Customer*>(user.second)) { //dynamic cast to check if the user is a customer
+            if (!first_customer) discountsFile << endl;
+            discountsFile << user.first << " @ " << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount(); 
+            first_customer = false;
+        }
+        first = false;
+        
     }
-    
+
     file.close();
     discountsFile.close();
     

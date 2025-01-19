@@ -7,62 +7,63 @@
 #include <iomanip>
 #include <algorithm>
 
+using namespace std;
 
-Customer::Customer(const std::string& username, const std::string& password, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
+Customer::Customer(const string& username, const string& password, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
 
 void Customer::displayMenu() {
-    std::cout << std::endl;
-    std::cout << "---Customer Menu---" << std::endl;
-    std::cout << "1. Search for a product" << std::endl;
-    std::cout << "2. Add product to cart" << std::endl;
-    std::cout << "3. Update product from cart" << std::endl;
-    std::cout << "4. Remove product from cart" << std::endl;
-    std::cout << "5. Complete order" << std::endl;
-    std::cout << "6. View order history" << std::endl;
-    std::cout << "7. View cart" << std::endl;
-    std::cout << "8. Exit" << std::endl;
+    cout << endl;
+    cout << "---Customer Menu---" << endl;
+    cout << "1. Search for a product" << endl;
+    cout << "2. Add product to cart" << endl;
+    cout << "3. Update product from cart" << endl;
+    cout << "4. Remove product from cart" << endl;
+    cout << "5. Complete order" << endl;
+    cout << "6. View order history" << endl;
+    cout << "7. View cart" << endl;
+    cout << "8. Exit" << endl;
     discountStats.printDiscount(currDiscount);
-    std::cout << "Enter your choice: ";
+    cout << "Enter your choice: ";
 } 
 
 void Customer::searchProduct(ProductManager products, CategoryManager& categories) {
-    std::cout << "1. Search for a specific product (by title)." << std::endl;
-    std::cout << "2. View the products of a specific category." << std::endl;
-    std::cout << "3. Show all the available products." << std::endl;
-    std::cout << "Enter your choice: ";
+    cout << "1. Search for a specific product (by title)." << endl;
+    cout << "2. View the products of a specific category." << endl;
+    cout << "3. Show all the available products." << endl;
+    cout << "Enter your choice: ";
     int choice = readInt();
     while (choice < 1 || choice > 3) {
-        std::cout << "Invalid Option. Please enter a number between 1 and 3: ";
+        cout << "Invalid Option. Please enter a number between 1 and 3: ";
         choice = readInt();
     }
     switch(choice){
         case 1: {
-            std::string titleSearch;
-            std::cout << "Enter title to search: ";
+            string titleSearch;
+            cout << "Enter title to search: ";
             titleSearch = readString();
             if (products.findProduct(titleSearch)) {
                 products.findProduct(titleSearch)->displayProduct();
             } else {
-                std::cout << "Product not found." << std::endl;
+                cout << "Product not found." << endl;
             }
             break;
         }
         case 2: {
-            std::string categorySearch;
-            std::string subcategorySearch;
-            std::cout << "Enter category to search: ";
+            string categorySearch;
+            string subcategorySearch;
+            cout << "Enter category to search: ";
             categorySearch = readString();
             auto searchCategory = categories.findCategory(categorySearch);
             while (!searchCategory) {
-                std::cout << "Invalid Category. Please choose from the above." << std::endl;
+                cout << "Invalid Category. Please choose from the above." << endl;
                 categorySearch = readString();
                 searchCategory = categories.findCategory(categorySearch);
             }
-            std::cout << "Enter subcategory to search (leave empty for all subcategories): ";
+            cout << "Enter subcategory to search (leave empty for all subcategories): ";
             subcategorySearch = readString();
             auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             while (!subcategorySearch.empty() && !searchSubcategory) {
-                std::cout << "Invalid Subcategory. Please choose from the above, or leave empty." << std::endl;
+                cout << "Invalid Subcategory. Please choose from the above, or leave empty." << endl;
                 subcategorySearch = readString();
                 searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
             }
@@ -73,92 +74,91 @@ void Customer::searchProduct(ProductManager products, CategoryManager& categorie
             }
         }
         case 3: {
-            std::cout << "Results: ";
+            cout << "Results: ";
             products.displayProducts();
-            std::cout << "Select a product title: ";
-            std::string selectedTitle;
+            cout << "Select a product title: ";
+            string selectedTitle;
             selectedTitle = readString();
             while (!products.findProduct(selectedTitle)) {
-                std::cout << "Invalid Product. Please choose from the above." << std::endl;
+                cout << "Invalid Product. Please choose from the above." << endl;
                 selectedTitle = readString();
             }
             products.findProduct(selectedTitle)->displayProduct();
             break;
         }
         default: {
-            std::cout << "Invalid Option." << std::endl;
+            cout << "Invalid Option." << endl;
             break;
         }
     }
 }
 
 void Customer::addProductToCart(ProductManager& products) {
-    std::string title;
+    string title;
     int quantity;
 
-    std::cout << "Which product do you want to add? ";
+    cout << "Which product do you want to add? ";
     title = readString();
-    std::cout << "Enter quantity: ";
+    cout << "Enter quantity: ";
     quantity = readInt();
     while (quantity <= 0) {
-        std::cout << "Invalid quantity. Please enter a valid quantity: ";   
+        cout << "Invalid quantity. Please enter a valid quantity: ";   
         quantity = readInt();
     }
-
-    bool productFound = false;
     auto product = products.findProduct(title);
     if (product == nullptr) {
-        std::cout << "Product not found!" << std::endl;
+        cout << "Product not found!" << endl;
         return;
     }
     if (product->getAmount() >= quantity) {
         cart.addProduct(product, quantity);
     } else {
         if (product->getAmount() == 0) {
-            std::cout << "Product out of stock!" << std::endl;
+            cout << "Product out of stock!" << endl;
         } else {
             cart.addProduct(product, product->getAmount());
-            std::cout << "Not enough available, added " << product->getAmount() << " to cart instead." << std::endl;
+            cout << "Not enough available, added " << product->getAmount() << " to cart instead." << endl;
         }
         
     }
 }
 
 void Customer::removeProductFromCart(ProductManager& products) {
-    std::string title;
-    std::cout << "Which product do you want to remove from your cart? ";
+    string title;
+    cout << "Which product do you want to remove from your cart? ";
     title = readString();
     auto product = products.findProduct(title);
     if (product == nullptr) {
-        std::cout << "Product not found!" << std::endl;
+        cout << "Product not found!" << endl;
         return;
     }
     if (!cart.removeProduct(product)) {
-        std::cout << "Product not found in cart!" << std::endl;
+        cout << "Product not found in cart!" << endl;
+        return;
     }
-    std::cout << "Product removed from cart!" << std::endl;
+    cout << "Product removed from cart!" << endl;
 }
 
 void Customer::viewCart() {
-    std::cout << cart;
+    cout << cart;
 }
 
 void Customer::updateProductInCart(ProductManager& products) {
-    std::string title;
+    string title;
     int quantity;
 
-    std::cout << "Which product do you want to update? ";
+    cout << "Which product do you want to update? ";
     title = readString();
     auto product = products.findProduct(title);
     if (product == nullptr) {
-        std::cout << "Product not found!" << std::endl;
+        cout << "Product not found!" << endl;
         return;
     }
     if (!cart.isInCart(product)) {
-        std::cout << "Product not found in cart!" << std::endl;
+        cout << "Product not found in cart!" << endl;
         return;
     }
-    std::cout << "Enter new quantity: ";
+    cout << "Enter new quantity: ";
     quantity = readInt();
     if (quantity == 0) {
         cart.removeProduct(product);
@@ -168,9 +168,9 @@ void Customer::updateProductInCart(ProductManager& products) {
         cart.updateProduct(product, quantity);
     } else {
         if (product->getAmount() == 0) {
-            std::cout << "Product out of stock!" << std::endl;
+            cout << "Product out of stock!" << endl;
         } else {
-            std::cout << "Not enough available, added " << product->getAmount() << " to cart instead." << std::endl;
+            cout << "Not enough available, added " << product->getAmount() << " to cart instead." << endl;
             cart.updateProduct(product, product->getAmount());
 
         }   
@@ -178,9 +178,9 @@ void Customer::updateProductInCart(ProductManager& products) {
 }
 
 void Customer::completeOrder(CategoryManager& categories){
-    std::ofstream historyFile("files/order_history/" + username + "_history.txt", std::ios::app);   
+    ofstream historyFile("files/order_history/" + username + "_history.txt", ios::app);   
     if (!historyFile.is_open()) {
-        std::cerr << "Error opening history file." << std::endl;
+        cerr << "Error opening history file." << endl;
         return;
     }
 
@@ -197,24 +197,24 @@ void Customer::completeOrder(CategoryManager& categories){
     }
 
 
-    if (discountStats.ordersCompleted!=0) historyFile << std::endl << std::endl;
+    if (discountStats.ordersCompleted!=0) historyFile << endl << endl;
     cart.saveToFile(historyFile, ++discountStats.ordersCompleted);
     historyFile.close();
     cart.checkout();  
     discountStats.nextCart();
     updateCurrentDiscount(categories);
-    std::cout << "Order completed!" << std::endl;
+    cout << "Order completed!" << endl;
 }
 
 void Customer::viewOrderHistory(){
-    std::ifstream historyFile("files/order_history/" + username + "_history.txt");
+    ifstream historyFile("files/order_history/" + username + "_history.txt");
     if (!historyFile.is_open()) {
-        std::cerr << "Error opening history file." << std::endl;
+        cerr << "Error opening history file." << endl;
         return;
     }
-    std::string line;
-    while (std::getline(historyFile, line)) {
-        std::cout << line << std::endl;
+    string line;
+    while (getline(historyFile, line)) {
+        cout << line << endl;
     }
     historyFile.close();
 }
@@ -265,7 +265,7 @@ bool Customer::executeCommand(ProductManager& products, CategoryManager& categor
             return false;
         }
         default: {
-            std::cout << "Invalid Option." << std::endl;
+            cout << "Invalid Option." << endl;
             break;
         }
     }
