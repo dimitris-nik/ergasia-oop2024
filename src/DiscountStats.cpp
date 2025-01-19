@@ -10,14 +10,12 @@ void DiscountStats::updateProductStats(Product* product, int quantity) {
     product->increaseAppearedInCart(); //we also need this for top products
     if (products_Stats.find(product) == products_Stats.end()) {
         products_Stats[product].consecutiveOrders = 1; // product appeared in cart for the first time, initialize everything
-        products_Stats[product].totalAmount = quantity; 
         products_Stats[product].foundInLastCart = true;
     } else {
         if (!products_Stats[product].foundInLastCart) { 
-            products_Stats[product].foundInLastCart = true;
+            products_Stats[product].foundInLastCart = true; // product found
         }
-        products_Stats[product].consecutiveOrders++; 
-        products_Stats[product].totalAmount += quantity;
+        products_Stats[product].consecutiveOrders++; // increase the consecutive orders
     }
 }
 
@@ -60,7 +58,7 @@ discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoya
         for (const auto& p : products_Stats) {
             if (p.second.appearedInCart > maxAmount) {
                 maxAmount = p.second.appearedInCart;
-                favoriteProduct = p.first;
+                favoriteProduct = p.first; // favorite product is the one that appeared the most in the carts
             }
         }
         discounts.push_back({favoriteProduct, 0.6});
@@ -76,11 +74,11 @@ void DiscountStats::printDiscount(discount discount) {
     if (discount.product == nullptr) {
         return;
     }
-    if (discount.multiplier == 0.8) {
+    if (discount.multiplier == 0.8) { // 20% discount
         cout << "You bought " << discount.product->getTitle() << " 3 times in a row in your past orders, 20% discount on your next order!" << endl;
-    } else if (discount.multiplier == 0.7) {
+    } else if (discount.multiplier == 0.7) { // 30% discount
         cout << "You seem to like " << discount.product->getCategory() << " products, you have a 30% discount to " << discount.product->getTitle() << " on your next order!" << endl; 
-    } else if (discount.multiplier == 0.6) {
+    } else if (discount.multiplier == 0.6) { // 40% discount
         cout << "You have completed 5 orders, 40% discount to your favorite product, " << discount.product->getTitle() << "! Can only be used once!" << endl;
     }
 }

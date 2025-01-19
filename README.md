@@ -296,8 +296,7 @@ class CategoryManager {
 ```c++
 typedef struct stats {
     int consecutiveOrders = 0; // max amount of times the product was found in the cart in a row
-    int appearedInCart = 0; // total times the product was found in the cart (regardless of the amount)
-    int totalAmount = 0; // total amount of the product found in the cart
+    int appearedInCart = 0; // total times the product was found in the cart (need this for favorite product)
     int foundInLastCart = false; // if the product was found in the last cart
 } productStats;
 
@@ -341,9 +340,11 @@ Product* Category::generateRandomProduct(){
 }
 ```
 
-Τέλος, η κλάση Customer περιέχει το πεδίο `discount currDiscount = {nullptr, 1.0};` που αποθηκεύει την έκπτωση που δικαιούται αυτή τη στιγμή, και που θα εφαρμόσει στο καλάθι του στην επόμενη παραγγελία. Η μέθοδος `updateCurrentDiscount` ενημερώνει το πεδίο αυτό, και καλείται μία φορά στην αρχή όταν αρχικοποιείται ο Customer στο Eshop, και έπειτα μετά από κάθε παραγγελία.
+Η κλάση Customer περιέχει το πεδίο `discount currDiscount = {nullptr, 1.0};` που αποθηκεύει την έκπτωση που δικαιούται αυτή τη στιγμή, και που θα εφαρμόσει στο καλάθι του στην επόμενη παραγγελία. Η μέθοδος `updateCurrentDiscount` ενημερώνει το πεδίο αυτό, και καλείται μία φορά στην αρχή όταν αρχικοποιείται ο Customer στο Eshop, και έπειτα μετά από κάθε παραγγελία.
 
 Το σύστημα ενημερώνει τον χρήστη για την έκπτωση που δικαιούται, με την χρήση της `printDiscount`. Η printDiscount καλείται κάθε φορά στην displayMenu του Customer, ενημερώνοντάς τον ότι έχει διαθέσιμη έκπτωση, και ποια είναι αυτή (βλ. κώδικα).
+
+Τέλος, ως αγαπημένο προϊόν ορίζεται αυτό που έχει εμφανιστεί τις περισσότερες φορές στο καλάθι του, ανεξαρτήτως ποσότητας. Αυτό γίνεται για να μην παίρνουν προτεραιότητα τα προϊόντα από τα οποία αγοράζουμε μεγάλη ποσότητα ούτως ή άλλως (πχ αν αγοράσει μήλα ή ντομάτες, τότε προφανώς η ποσότητα θα είναι πάντα μεγαλύτερη από αυτή που θα ήταν αν αγόραζε μπλούζες). Το προϊόν που εμφανίστηκε τις περισσότερες φορές στο καλάθι το υπολογίζει η μέθοδος `getDiscount`.
 
 # utils και input
 ```c++
@@ -358,6 +359,6 @@ std::string readString();
 double readDouble();
 ```
 
-Στα αρχεία `utils.h` και `utils.cpp` υλοποιούνται οι συναρτήσεις υπεύθυνες για την εισαγωγή δεδομένων από τον χρήστη. Χρησιμοποιείται πάντα getline για να δεχόμαστε οτιδήποτε (πχ για ακέραιο getline + stod) τόσο για να ελέγχουμε το validity του input όσο για μην ασχολούμαστε με ζητήματα του `std::cin` (πχ περισευμένο '\n' στον cin buffer).
+Στα αρχεία `utils.h` και `utils.cpp` υλοποιούνται οι συναρτήσεις υπεύθυνες για την εισαγωγή δεδομένων από τον χρήστη. Χρησιμοποιείται πάντα getline για να δεχόμαστε οτιδήποτε (πχ για ακέραιο getline + stod) τόσο για να ελέγχουμε το validity του input όσο για μην ασχολούμαστε με ζητήματα του `std::cin` (πχ περισσευούμενο '\n' στον cin buffer).
 
 Επιπλέον η συνάρτηση `trim()` αφαιρεί τα trailing και leading whitespaces από τα strings που χρειάζεται γιατί χρησιμοποιούνται ως κλειδιά στα maps και πρέπει να εξασφαλίζουμε την ομοιότητά τους στις εισαγωγές από τον χρήστη κλπ.

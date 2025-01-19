@@ -5,8 +5,7 @@
 
 typedef struct stats {
     int consecutiveOrders = 0; // max amount of times the product was found in the cart in a row
-    int appearedInCart = 0; // total times the product was found in the cart (regardless of the amount)
-    int totalAmount = 0; // total amount of the product found in the cart
+    int appearedInCart = 0; // total times the product was found in the cart (need this for favorite product)
     int foundInLastCart = false; // if the product was found in the last cart
 } productStats;
 
