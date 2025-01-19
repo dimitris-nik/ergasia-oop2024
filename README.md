@@ -1,6 +1,7 @@
 # sdi2300208 sdi2300139
 
 # Eshop
+
 Σε αυτήν την εργασία υλοποιήθηκε το Eshop όπως περιγράφεται στην εκφώνηση και σε συμφωνία με τα samples/unit tests. 
 
 ```c
@@ -45,6 +46,7 @@ public:
     virtual void displayMenu() = 0; // Pure virtual function for menu display
     virtual bool executeCommand(ProductManager& products, CategoryManager& categories) = 0; // Pure virtual function to execute user commands
     bool checkPassword(std::string& password) const; //for login
+    void searchProduct(ProductManager& products, CategoryManager& categories);
     friend std::ostream& operator<<(std::ostream& os, const User& user);
 };
 
@@ -60,6 +62,8 @@ public:
 ```
 Στην κλάση `User`, πέρα από το να αποθηκεύει τα βασικά αναγνωριστικά στοιχεία του χρήστη, χρησιμοποιούνται pure virtual functions (displaymenu και executeCommand) προκειμένου να διαφοροποιήσουμε την λειτουργία της κάθε μίας για τους Admin και τους Customer.
 
+Ωστόσο η μέθοδος searchProduct ορίζεται και υλοποιείται στο User καθώς είναι πανομοιότυπη και για τους 2 τύπους χρηστών. Οι κλάσεις User και Customer την κληρονομούν και την χρησιμοποιούν.
+
 Επιπλέον έχει φτιαχτεί μία κλάση `UserManager`, αυτή που χρησιμοποιείται στο Eshop, η οποία αποθηκεύει σε ένα hashtable (unordered_map) όλους τους χρήστες, χρησιμοποιώντας ως κλειδί το username τους καθώς είναι μοναδικό.
 
 Χρησιμοποιούνται μεθόδοι add, remove και find User για την διαχείριση της βάσης χρηστών από το Eshop. 
@@ -69,14 +73,13 @@ public:
 ### Admin και Customer
 ```c
 class Admin : public User {
-    void addProduct(ProductManager& products, CategoryManager& categories);
-    void editProduct(ProductManager& products, CategoryManager& categories);
-    void removeProduct(ProductManager& products, CategoryManager& categories);
-    void searchProduct(ProductManager& products, CategoryManager& categories);    
 public:
     Admin(std::string username, std::string password);
     void displayMenu();
     bool executeCommand(ProductManager& products, CategoryManager& categories);
+    void addProduct(ProductManager& products, CategoryManager& categories);
+    void editProduct(ProductManager& products, CategoryManager& categories);
+    void removeProduct(ProductManager& products, CategoryManager& categories);
 };
 
 class Customer : public User {
@@ -84,26 +87,27 @@ class Customer : public User {
     DiscountStats discountStats;
     bool hasUsedLoyaltyDiscount = false;
     discount currDiscount = {nullptr, 1.0};
-    void searchProduct(ProductManager products, CategoryManager& categories);
+    
+public:
+    Customer(const std::string& username, const std::string& password, DiscountStats productStats);
+    void displayMenu();
+    bool executeCommand(ProductManager& products, CategoryManager& categories);
     void addProductToCart(ProductManager& products);
     void updateProductInCart(ProductManager& products);
     void removeProductFromCart(ProductManager& products);
     void completeOrder(CategoryManager& categories);
     void viewOrderHistory();
     void viewCart();
-public:
-    Customer(const std::string& username, const std::string& password, DiscountStats productStats);
-    void displayMenu();
-    bool executeCommand(ProductManager& products, CategoryManager& categories);
     void updateCurrentDiscount(CategoryManager& categories);
     bool getHasUsedLoyaltyDiscount() const;
     void setHasUsedLoyaltyDiscount(bool hasUsedLoyaltyDiscount);
 };
 
+
 ```
 Οι κλάσεις Admin και Customer αποτελούν επέκταση του User, και υλοποιούνται οι πολυμορφικές μεθόδοι displayMenu και executeCommand.
 
-Η executeCommand χρησιμοποιεί τις εσωτερικές μεθόδους της κάθε κλάσης για να τρέξει τα κατάλληλα commands. Επίσης όπως φαίνεται και στον κώδικα, τόσο η executeCommand όσο και οι εσωτερικές μεθόδοι διαχειρίζονται το User input, δηλαδη το τι command θα επιλέξει ο χρήστης, τα πεδία που ζητούνται όταν πχ ένας admin προσθέτει ένα προϊόν, κ.ο.κ.
+Η executeCommand χρησιμοποιεί τις ανάλογες μεθόδους της κάθε κλάσης για να τρέξει τα κατάλληλα commands. Επίσης όπως φαίνεται και στον κώδικα, τόσο η executeCommand όσο και οι μέθοδοι του κάθε command μεθόδοι διαχειρίζονται το User input, δηλαδη το τι command θα επιλέξει ο χρήστης, τα πεδία που ζητούνται όταν πχ ένας admin προσθέτει ένα προϊόν, κ.ο.κ.
 
 Ο customer επίσης περιέχει μερικά πεδία που χρησιμοποιούνται για τα discounts, που θα εξηγήσουμε ξεχωριστά στο BONUS κομμάτι του README.
 
@@ -228,5 +232,23 @@ class CategoryManager {
 
 Επιπλέον υπάρχει το πεδίο `int amountForDiscount = 0;`, που είναι κομμάτι του bonus.
 
-Επιπλέον έχει φτιαχτεί μία κλάση `CategoryManager`, αυτή που χρησιμοποιείται στο Eshop, η οποία αποτελεί κάτι σαν το "μηδενικό επίπεδο" των κατηγοριών. Η `addProduct` του CategoryManager αποτελεί μια πιο implementation-specific προσέγγιση καθώς δέχεται ως arguements μόνο την κατηγορία και την υποκατηγορία καθώς μέχρι εκεί φτάνουν τα προϊόντα στα παραδείγματα. Ωστόσο η δομή της κλάσης Category επιτρέπει ορισμό αναδρομικών συναρτήσεων που αναζητούν προϊόντα μεχρι και το τελευταίο επίπεδο με αλγορίμους όπως ο DFS.
- 
+Επιπλέον έχει φτιαχτεί μία κλάση `CategoryManager`, αυτή που χρησιμοποιείται στο Eshop, η οποία αποτελεί κάτι σαν το "μηδενικό επίπεδο" των κατηγοριών. 
+
+Η `addProduct` του CategoryManager αποτελεί μια πιο implementation-specific προσέγγιση καθώς δέχεται ως arguements μόνο την κατηγορία και την υποκατηγορία καθώς μέχρι εκεί φτάνουν τα προϊόντα στα παραδείγματα. Ωστόσο η δομή της κλάσης Category επιτρέπει ορισμό αναδρομικών συναρτήσεων που αναζητούν προϊόντα μεχρι και το τελευταίο επίπεδο υποκατηγορίας με αλγορίμους όπως ο DFS (για πολύ μεγάλα shops με πάρα πολλές κατηγορίες και υποκατηγορίες). 
+
+# utils και input
+```c
+#pragma once
+#include <string>
+#include <algorithm>
+#include <iostream>
+
+std::string trim(const std::string& str);
+int readInt();
+std::string readString();
+double readDouble();
+```
+
+Στα αρχεία `utils.h` και `utils.cpp` υλοποιούνται οι συναρτήσεις υπεύθυνες για την εισαγωγή δεδομένων από τον χρήστη. Χρησιμοποιείται πάντα getline για να δεχόμαστε οτιδήποτε (πχ για ακέραιο getline + stod) τόσο για να ελέγχουμε το validity του input όσο για μην ασχολούμαστε με ζητήματα του `std::cin` (πχ περισευμένο '\n' στον cin buffer).
+
+Επιπλέον η συνάρτηση `trim()` αφαιρεί τα trailing και leading whitespaces από τα strings που χρειάζεται γιατί χρησιμοποιούνται ως κλειδιά στα maps και πρέπει να εξασφαλίζουμε την ομοιότητά τους στις εισαγωγές από τον χρήστη κλπ.

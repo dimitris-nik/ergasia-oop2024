@@ -29,6 +29,10 @@ $(TARGET): $(OBJS)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/%.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Special rule for main.o because there is no main.h
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 # Clean target
 clean:
 	rm -f $(BUILD_DIR)/*.o $(TARGET)
