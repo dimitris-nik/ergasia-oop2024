@@ -1,10 +1,37 @@
 # sdi2300208 sdi2300139
+## ΣΗΜΑΝΤΙΚΟ: το repository ονομάστηκε εκ παραδρομής `silly-little-guys` καθώς είναι το όνομα της ομάδας που χρησιμοποιούσαμε στις ομαδικές εργασίες του παρελθόντος και δεν διαβάσαμε την εκφώνηση εγκαίρως. Τα sdi μας είναι: `sdi2300208` και `sdi2300139`. Μας συγχωρείτε για την αναστάτωση.
+
+Στο παρακάτω README θα εξηγηθούν οι σχεδιαστικές επιλογές και η δομή των κλάσεων. 
+
+Γενικά, τα ονόματα των μεθόδων είναι αρκετά περιγραφικά της λειτουργίας τους, και πιστεύουμε πως δεν υπάρχουν ασάφειες στην υλοποίησή τους, οπότε η ανάλυσή τους στο README είναι περιττή.
+
+Για παράδειγμα, είναι προφανές ότι μια συνάρτηση `removeProductFromCart` με την παρακάτω υλοποίηση:
+```c++
+void Customer::removeProductFromCart(ProductManager& products) {
+    string title;
+    cout << "Which product do you want to remove from your cart? ";
+    title = readString();
+    auto product = products.findProduct(title);
+    if (product == nullptr) {
+        cout << "Product not found!" << endl;
+        return;
+    }
+    if (!cart.removeProduct(product)) {
+        cout << "Product not found in cart!" << endl;
+        return;
+    }
+    cout << "Product removed from cart!" << endl;
+}
+```
+Δεν χρειάζεται περαιτέρω ανάλυση στο readme.
+
+Παρ'όλ'αυτά, ο κώδικας είναι εμπλουτισμένος με σχόλια σε σημεία που κρίθηκε ότι χρειάζεται. 
 
 # Eshop
 
 Σε αυτήν την εργασία υλοποιήθηκε το Eshop όπως περιγράφεται στην εκφώνηση και σε συμφωνία με τα samples/unit tests. 
 
-```c
+```c++
 class Eshop {
 protected:
     UserManager users;
@@ -28,12 +55,38 @@ public:
     void run();
 };
 ```
+O constructor της Eshop δέχεται ως παράμετρους τα απαραίτητα αρχεία για την λειτουργία του Eshop.
+Ωστόσο επειδή στα samples δέχεται μόνο 3 αρχεία και αγνοεί τα discounts, στην main γίνεται default ανάθεση του discountsFile σε "discounts.txt" και του loyalDiscounts σε "loyalDiscounts.txt", αν δεν δοθούν ως ορίσματα στην κλήση του προγράμματος.
+```c++
+int main(int argc, char* argv[]) {
+
+    string categoriesFile;
+    string productsFile;
+    string usersFile;
+    string discountsFile;
+    string loyalDiscounts;
+
+    if (argc > 1) categoriesFile = argv[1];
+    else categoriesFile = "files/categories.txt";
+    if (argc > 2) productsFile = argv[2];
+    else productsFile = "files/products.txt";
+    if (argc > 3) usersFile = argv[3];
+    else usersFile = "files/users.txt";
+    if (argc > 4) discountsFile = argv[4];
+    else discountsFile = "files/discounts.txt";
+    if (argc > 5) loyalDiscounts = argv[5];
+    else loyalDiscounts = "files/loyal_discounts.txt";
+    Eshop eshop(categoriesFile, productsFile, usersFile, discountsFile, loyalDiscounts);
+    eshop.run();
+    return 0;
+}
+```
 Στην κλάση αποθηκεύονται ως protected τα απαραίτητα στοιχεία του Eshop (χρήστες, κατηγορίες, προϊόντα), καθώς ίσως θα θέλαμε σε μια μελοντική επέκταση να κληρονομείται σε άλλες κλάσεις (πχ Supermarket) και να έχουν πρόσβαση στα στοιχεία του Eshop.
 
 Παρακάτω θα εξηγήσουμε την υλοποίηση κάθε κλάσης με λεπτομέρεια.
 
 ## User
-```c
+```c++
 class User {
 protected:
     std::string username;
@@ -71,7 +124,7 @@ public:
 Η μέθοδος saveUsers αποθηκεύει όλους τους χρήστες στο αρχείο που παρέχεται από το eshop (και μία πληροφορία απαραίτητη για τα discounts σε ένα άλλο αρχείο, θα επιστρέψουμε σε αυτό αργότερα).
 
 ### Admin και Customer
-```c
+```c++
 class Admin : public User {
 public:
     Admin(std::string username, std::string password);
@@ -109,10 +162,12 @@ public:
 
 Η executeCommand χρησιμοποιεί τις ανάλογες μεθόδους της κάθε κλάσης για να τρέξει τα κατάλληλα commands. Επίσης όπως φαίνεται και στον κώδικα, τόσο η executeCommand όσο και οι μέθοδοι του κάθε command μεθόδοι διαχειρίζονται το User input, δηλαδη το τι command θα επιλέξει ο χρήστης, τα πεδία που ζητούνται όταν πχ ένας admin προσθέτει ένα προϊόν, κ.ο.κ.
 
+Και στις 2 υλοποιήσεις του executeCommand, περνάμε με arguements references στα products και τα categories, διότι είναι απαραίτητα για τις λειτουργίες.
+
 Ο customer επίσης περιέχει μερικά πεδία που χρησιμοποιούνται για τα discounts, που θα εξηγήσουμε ξεχωριστά στο BONUS κομμάτι του README.
 
 ## Product
-```c
+```c++
 class Product {
 private:
     std::string title;
@@ -170,6 +225,7 @@ public:
 
 
 ## Cart
+```c++
 class Cart {  
 public:
     double totalCost = 0;
@@ -183,12 +239,12 @@ public:
     void saveToFile(std::ostream& os, int number);
     friend std::ostream& operator<<(std::ostream& os, const Cart& cart);
 };
-
+```
 Το cart είναι μία κλάση που αποτελεί πεδίο του customer. Περιέχει ένα map από προιόντα σε μία ποσότητα στο καλάθι. Η χρήση Product pointers κάνει εύκολη την καθολική ενημέρωση του stock των προϊόντων σε περίπτωση checkout καθώς και την διατήρηση των προϊόντων στο καλάθι του χρήστη σε περίπτωση επεξεργασίας τους (πχ σε μια μελοντική επέκταση του προγράμματος που υποστήριζε ταυτόχρονη σύνδεση αν ένας admin άλλαζε το όνομα ενός προϊόντος την ώρα που ήταν στο καλάθι, θα ενημερωθεί σωστά και στο καλάθι).
 
 
 ## Category
-```c
+```c++
 class Category {
     private:
         std::vector<Category*> subcategories;
@@ -214,12 +270,11 @@ class CategoryManager {
         std::vector<Category*> categories;
     public:
         ~CategoryManager();
-        Category* addCategory(const std::string & category);
+        void addCategory(Category* category);
         void displayCategories() const;
         Category* findCategory(const std::string& category) const;
         void addProduct(Product* product, const std::string& category, const std::string& subcategory);
         void removeProduct(Product* product);
-       
 };
 ```
 Στην κλάση `Category`, αποθηκεύονται τα βασικά στοιχεία μιας κατηγορίας, δηλαδή το όνομα της, μια λίστα απο Product pointers που περιέχει τα προϊόντα της κατηγορίας, καθώς και μια λίστα απο Category pointers που περιέχει της υποκατηγορίες της κατηγορίας. Αυτος ο recursion-like ορισμός επιτρέπει την δημιουργία απεριόριστων επιπέδων από categories σε μελλοντική επέκταση.
@@ -236,8 +291,60 @@ class CategoryManager {
 
 Η `addProduct` του CategoryManager αποτελεί μια πιο implementation-specific προσέγγιση καθώς δέχεται ως arguements μόνο την κατηγορία και την υποκατηγορία καθώς μέχρι εκεί φτάνουν τα προϊόντα στα παραδείγματα. Ωστόσο η δομή της κλάσης Category επιτρέπει ορισμό αναδρομικών συναρτήσεων που αναζητούν προϊόντα μεχρι και το τελευταίο επίπεδο υποκατηγορίας με αλγορίμους όπως ο DFS (για πολύ μεγάλα shops με πάρα πολλές κατηγορίες και υποκατηγορίες). 
 
+# BONUS: DISCOUNTS
+Για το bonus κομμάτι της εργασίας υλοποιήθηκε η κλάση DiscountStats:
+```c++
+typedef struct stats {
+    int consecutiveOrders = 0; // max amount of times the product was found in the cart in a row
+    int appearedInCart = 0; // total times the product was found in the cart (regardless of the amount)
+    int totalAmount = 0; // total amount of the product found in the cart
+    int foundInLastCart = false; // if the product was found in the last cart
+} productStats;
+
+typedef struct discount {
+    Product* product;
+    double multiplier;
+} discount;
+
+class DiscountStats {
+    std::unordered_map<Product*, productStats> products_Stats;
+    std::unordered_map<std::string, int> categoriesCounter;
+    int ordersCompleted = 0;
+    public: 
+        void updateProductStats(Product* product, int quantity);
+        void nextCart();
+        discount getDiscount(CategoryManager& categories, int hasUsedLoyaltyDiscount);
+        void incrementOrdersCompleted();
+        int getOrdersCompleted() const;
+        void printDiscount(discount discount);
+};
+```
+Κάθε αντικείμενο `DiscountStats` περιέχι ένα map (`products_Stats`) από `Product*` σε ένα struct, το οποίο περιέχει κατάλληλα πεδία ώστε να υλοποιηθούν οι λειτουργίες που περιγράφονται, όπως φανερώνουν τα comments.
+
+Η μέθοδος `updateProductStats` ενημερώνει κατάλληλα την κάθε καταχώρηση του `products_Stats`, δεδομένου ότι το προϊόν μόλις εμφανίστηκε στο καλάθι. 
+Η `updateProductStats` λειτουργεί με την υπόθεση ότι κάθε διαδοχική της κλήση πρόκειται για προϊόν του ίδιου καλαθιού. Με την μέθοδος `nextCart` δηλώνουμε ότι το τρέχων καλάθι τελείωσε και προχωράμε στο επόμενο, με την ανάλογη ενημέρωση των πεδίων στο `products_Stats`
+
+Επιπλέον ορίστηκε ο τύπος `discount`, ο οποίος πρόκειται απλά για ένα struct που περιέχει ένα `Product*` και το αντίστοιχο discount multiplier (πχ για έκπτωση 20% έχουμε multiplier = 0.8)
+
+Η `DiscountStats` επίσης περιέχει έναν μετρητή `ordersCompleted` που αυξάνεται με κάθε νέα παραγγελία του χρήστη, απαραίτητη για την έκπτωση 40% στις 5 παραγγελίες, με τους αντίστοιχες getters και setters.
+
+Η `getDiscount` είναι η μέθοδος που, πρώτα κάνει generate όλες τις διαθέσιμες εκπτώσεις, και έπειτα επιστρέφει μία από αυτές στην τύχη, αν υπάρχει. Αν δεν υπάρχει επιστρέφει μία default εκπτωση 1.0 (δηλαδή καμία έκπτωση), και το `Product*` ως `nullptr`. 
+Δέχεται ως arguement τον `hasUsedLoyaltyDiscount` που είναι ένα bool που δηλώνει αν ο χρήστης έχει ήδη χρησιμοποιήσει το loyalty discount (αποθηκεύεται στον Customer), καθώς και ένα reference στο `CategoryManager` γιατί εκεί αποθηκεύεται η πληροφορία `amountForDiscount` η οποία δηλώνει το πόσα προϊόντα ίδιας κατηγορίας πρέπει να αγοράσει για την έκπτωση 30% σε τυχαίο προϊόν της ίδιας κατηγορίας.
+Επιπλέον, υλοποιήθηκε η μέθοδος `generateRandomProduct` στην κλάση `Category`, που επιστρέφει ένα τυχαίο προϊόν από την κατηγορία.
+
+
+```c++
+Product* Category::generateRandomProduct(){
+    if (products.empty()) {
+        return nullptr;
+    }
+    return products[rand() % products.size()];
+}
+```
+
+
 # utils και input
-```c
+```c++
 #pragma once
 #include <string>
 #include <algorithm>
