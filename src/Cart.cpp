@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// Items is an unordered map binding products to their quantity in the cart
 void Cart::addProduct(Product* product, int quantity) {
     items[product] += quantity;
     totalCost += product->getPrice() * quantity;
@@ -36,6 +37,7 @@ void Cart::applyDiscount(Product* product, double discount) {
     cout << "Discount applied: " << 100 - discount * 100 << "% off on " << product->getTitle() << "!" << endl;
 }
 
+// Upon checkout, update the product amount which represents the stock
 void Cart::checkout() {
     for (const auto& item : items) {
         item.first->setAmount(item.first->getAmount() - item.second);
@@ -44,7 +46,7 @@ void Cart::checkout() {
     totalCost = 0;
 }
 
-void Cart::saveToFile(ostream& os, int number) { // this is necessary unfortunately to save numbered cart to file, would be cleaner if i could only use << operator :(
+void Cart::saveToFile(ostream& os, int number) { // Unfortunately, we cannot use the overloaded operator << here because we need to print the number of the cart :(
     os << "---CART " << number <<" START---" << endl;
     for (const auto& item : items) {
         os << item.second << " " << item.first->getTitle() << endl;
