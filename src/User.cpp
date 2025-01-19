@@ -65,15 +65,13 @@ void UserManager::saveUsers(const string& usersFile, const string& loyalDiscount
             file << endl;
         }
         file << *user.second;
-        if (dynamic_cast<Customer*>(user.second)) { //dynamic cast to check if the user is a customer
+        if (dynamic_cast<Customer*>(user.second)) { //dynamic cast to check if the user is a customer and save to loyal discounts file
             if (!first_customer) discountsFile << endl;
             discountsFile << user.first << " @ " << dynamic_cast<Customer*>(user.second)->getHasUsedLoyaltyDiscount(); 
             first_customer = false;
         }
         first = false;
-        
     }
-
     file.close();
     discountsFile.close();
     
