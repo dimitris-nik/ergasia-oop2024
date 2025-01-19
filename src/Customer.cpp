@@ -11,6 +11,7 @@ using namespace std;
 
 Customer::Customer(const string& username, const string& password, DiscountStats discountStats) : User(username, password, false), discountStats(discountStats) {}
 
+// Overloaded displayMenu function for Customer
 void Customer::displayMenu() {
     cout << endl;
     cout << "---Customer Menu---" << endl;
@@ -26,72 +27,6 @@ void Customer::displayMenu() {
     cout << "Enter your choice: ";
 } 
 
-void Customer::searchProduct(ProductManager products, CategoryManager& categories) {
-    cout << "1. Search for a specific product (by title)." << endl;
-    cout << "2. View the products of a specific category." << endl;
-    cout << "3. Show all the available products." << endl;
-    cout << "Enter your choice: ";
-    int choice = readInt();
-    while (choice < 1 || choice > 3) {
-        cout << "Invalid Option. Please enter a number between 1 and 3: ";
-        choice = readInt();
-    }
-    switch(choice){
-        case 1: {
-            string titleSearch;
-            cout << "Enter title to search: ";
-            titleSearch = readString();
-            if (products.findProduct(titleSearch)) {
-                products.findProduct(titleSearch)->displayProduct();
-            } else {
-                cout << "Product not found." << endl;
-            }
-            break;
-        }
-        case 2: {
-            string categorySearch;
-            string subcategorySearch;
-            cout << "Enter category to search: ";
-            categorySearch = readString();
-            auto searchCategory = categories.findCategory(categorySearch);
-            while (!searchCategory) {
-                cout << "Invalid Category. Please choose from the above." << endl;
-                categorySearch = readString();
-                searchCategory = categories.findCategory(categorySearch);
-            }
-            cout << "Enter subcategory to search (leave empty for all subcategories): ";
-            subcategorySearch = readString();
-            auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
-            while (!subcategorySearch.empty() && !searchSubcategory) {
-                cout << "Invalid Subcategory. Please choose from the above, or leave empty." << endl;
-                subcategorySearch = readString();
-                searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
-            }
-            if (subcategorySearch.empty()) {
-                searchCategory->displayProducts();
-            } else {
-                searchSubcategory->displayProducts();
-            }
-        }
-        case 3: {
-            cout << "Results: ";
-            products.displayProducts();
-            cout << "Select a product title: ";
-            string selectedTitle;
-            selectedTitle = readString();
-            while (!products.findProduct(selectedTitle)) {
-                cout << "Invalid Product. Please choose from the above." << endl;
-                selectedTitle = readString();
-            }
-            products.findProduct(selectedTitle)->displayProduct();
-            break;
-        }
-        default: {
-            cout << "Invalid Option." << endl;
-            break;
-        }
-    }
-}
 
 void Customer::addProductToCart(ProductManager& products) {
     string title;
@@ -178,25 +113,28 @@ void Customer::updateProductInCart(ProductManager& products) {
 }
 
 void Customer::completeOrder(CategoryManager& categories){
+    // Open history file
     ofstream historyFile("files/order_history/" + username + "_history.txt", ios::app);   
     if (!historyFile.is_open()) {
         cerr << "Error opening history file." << endl;
         return;
     }
-
+    // If a discount was applied, apply it to the cart
     if (currDiscount.product != nullptr and cart.isInCart(currDiscount.product)) {
         cart.applyDiscount(currDiscount.product, currDiscount.multiplier);
         if (currDiscount.multiplier == 0.6) {
+            // Check if the loyalty discount was used
             hasUsedLoyaltyDiscount = true;
         }
     }
+    // Update the discount stats for the products in the cart
     for (const auto& item : cart.items) {
         auto &product = item.first;
         auto &quantity = item.second;
         discountStats.updateProductStats(product, quantity);
     }
 
-
+    // Append the cart to the history file
     if (discountStats.ordersCompleted!=0) historyFile << endl << endl;
     cart.saveToFile(historyFile, ++discountStats.ordersCompleted);
     historyFile.close();
@@ -213,6 +151,7 @@ void Customer::viewOrderHistory(){
         return;
     }
     string line;
+    // Print the history file line by line 
     while (getline(historyFile, line)) {
         cout << line << endl;
     }

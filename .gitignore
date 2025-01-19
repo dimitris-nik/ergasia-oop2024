@@ -1,3 +1,12 @@
-.vscode/c_cpp_properties.json
+oop24
 .vscode/settings.json
-build/
+build/Admin.o
+build/Cart.o
+build/Category.o
+build/Customer.o
+build/DiscountStats.o
+build/Eshop.o
+build/main.o
+build/Product.o
+build/User.o
+build/utils.o

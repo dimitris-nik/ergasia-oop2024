@@ -39,8 +39,8 @@ class ProductManager {
 std::unordered_map<std::string, Product*> products;
 public:
     ~ProductManager();
-    bool addProduct(Product* product);
-    bool removeProduct(const std::string& title);
+    void addProduct(Product* product);
+    void removeProduct(const std::string& title);
     void displayProducts() const;
     Product* findProduct(const std::string& title);
     void showUnavailableProducts() const;

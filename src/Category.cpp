@@ -7,7 +7,8 @@
 #include <sstream>
 
 using namespace std;
-
+// Each category has a name, a list of subcategories, a list of pointers to products and an amount for discount
+// Pointers to products are stored in both the category and its subcategories for easier access
 Category::Category(const string& name) : name(name) {
     subcategories = vector<Category*>();
     products = vector<Product*>();
@@ -48,6 +49,7 @@ void Category::removeProduct(Product* product){
     }
 }
 
+// Generate a random product from the category (used for discounts)
 Product* Category::generateRandomProduct(){
     if (products.empty()) {
         return nullptr;

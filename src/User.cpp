@@ -12,6 +12,7 @@ bool User::checkPassword(string& password) const {
 }
 
 ostream& operator<<(ostream& os, const User& user) {
+    // Overloaded operator << to make saving users to file easier
     os << user.username + "," + user.password + "," + (user.isAdmin ? "1" : "0");
     return os;
 }
@@ -76,4 +77,75 @@ void UserManager::saveUsers(const string& usersFile, const string& loyalDiscount
     file.close();
     discountsFile.close();
     
+}
+// searchProduct is common for both Admin and Customer
+void User::searchProduct(ProductManager& products, CategoryManager& categories){
+    cout << "1. Search for a specific product (by title)." << endl;
+    cout << "2. View the products of a specific category." << endl;
+    cout << "3. Show all the available products." << endl;
+    cout << "Enter your choice: ";
+    int choice;
+    choice = readInt();
+    while (choice < 1 || choice > 3) {
+        cout << "Invalid Option. Please enter a number between 1 and 3: ";
+        choice = readInt();
+    }
+    switch(choice){
+        case 1: {
+            string titleSearch;
+            cout << "Enter title to search: ";
+            titleSearch = readString();
+            if (products.findProduct(titleSearch)) {
+                products.findProduct(titleSearch)->displayProduct();
+            } else {
+                cout << "Product not found." << endl;
+            }
+            break;
+        }
+        case 2: {
+            string categorySearch;
+            string subcategorySearch;
+            cout << "Enter category to search: ";
+            categorySearch = readString();
+            auto searchCategory = categories.findCategory(categorySearch);
+            while (!searchCategory) {
+                cout << "Invalid Category. Please choose from the above." << endl;
+                categorySearch = readString();
+                searchCategory = categories.findCategory(categorySearch);
+            }
+            cout << "Enter subcategory to search (leave empty for all subcategories): ";
+            subcategorySearch = readString();
+            auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
+            while (!subcategorySearch.empty() && !searchSubcategory) {
+                cout << "Invalid Subcategory. Please choose from the above, or leave empty." << endl;
+                subcategorySearch = readString();
+                searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
+            }
+            if (subcategorySearch.empty()) {
+                searchCategory->displayProducts();
+            } else {
+                searchSubcategory->displayProducts();
+            }
+            break;
+        }
+        case 3: {
+            cout << "Results: ";
+            products.displayProducts();
+            cout << endl;
+            cout << "Select a product title: ";
+            string selectedTitle;
+            selectedTitle = readString();
+            while (!products.findProduct(selectedTitle)) {
+                cout << "Invalid Product. Please choose from the above." << endl;
+                selectedTitle = readString();
+            }
+            products.findProduct(selectedTitle)->displayProduct();
+            break;
+        }
+        default: {
+            cout << "Invalid Option." << endl;
+            break;
+        }
+    }
+
 }

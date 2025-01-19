@@ -1,3 +1,5 @@
+Baseball Cap @ A trendy headwear @ Clothing @ Hat @ 8.00 @ Unit @ 100
+Bottle of Beer @ A refreshing alcoholic beverage @ Drink @ Alcohol @ 2.50 @ Unit @ 60
 Space Odyssey @ An epic sci-fi tale @ Book @ Sci-Fi @ 15.00 @ Unit @ 30
 Romantic Saga @ A timeless romance novel @ Book @ Romance @ 9.99 @ Unit @ 60
 Tablet @ Ideal for reading and light work @ Tech @ Tablet @ 600.00 @ Unit @ 25
@@ -7,9 +9,6 @@ Tomato @ A healthy vegetable @ Food @ Vegetable @ 2.00 @ Kg @ 100
 Apple @ A healthy fruit @ Food @ Fruit @ 1.80 @ Kg @ 100
 Can of Orange Juice @ Fresh and delicious @ Drink @ Juice @ 3.50 @ Unit @ 40
 T-Shirt @ Casual and comfortable @ Clothing @ Shirt @ 10.00 @ Unit @ 80
-Laptop @ A high-performance computer @ Tech @ Laptop @ 1200.00 @ Unit @ 20
 Chicken Breast @ Fresh and lean meat @ Food @ Meat @ 5.50 @ Kg @ 50
 Latte Beans @ A creamy coffee drink @ Drink @ Coffee @ 4.00 @ Kg @ 30
 Jeans @ Stylish denim pants @ Clothing @ Pant @ 20.00 @ Unit @ 50
-Bottle of Beer @ A refreshing alcoholic beverage @ Drink @ Alcohol @ 2.50 @ Unit @ 60
-Baseball Cap @ A trendy headwear @ Clothing @ Hat @ 8.00 @ Unit @ 100
