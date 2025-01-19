@@ -94,6 +94,7 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
                 cout << "Product with this title already exists or you typed the same title. Please enter a different title: ";
                 newTitle = readString();
             }
+            // We can't change the key of the product in the map, so we need to remove it and add it again
             products.removeProduct(product->getTitle());
             product->setTitle(newTitle);
             products.addProduct(product);
@@ -123,6 +124,7 @@ void Admin::editProduct(ProductManager& products, CategoryManager& categories){
                 cout << "Invalid Subcategory. Please choose from the above." << endl;
                 newSubcategory = readString();
             }
+            // Completely remove the product from the category and subcategory and then add it again
             categories.removeProduct(product);
             product->setCategory(newCategory);
             product->setSubcategory(newSubcategory);
@@ -172,82 +174,12 @@ void Admin::removeProduct(ProductManager& products, CategoryManager& categories)
         return;
     }
     Product* product = products.findProduct(title);
-    categories.removeProduct(product); // Ligo periergo alla dax
+    categories.removeProduct(product); 
     products.removeProduct(title);
     delete product;
 }
 
 
-void Admin::searchProduct(ProductManager& products, CategoryManager& categories){
-    cout << "1. Search for a specific product (by title)." << endl;
-    cout << "2. View the products of a specific category." << endl;
-    cout << "3. Show all the available products." << endl;
-    cout << "Enter your choice: ";
-    int choice;
-    choice = readInt();
-    while (choice < 1 || choice > 3) {
-        cout << "Invalid Option. Please enter a number between 1 and 3: ";
-        choice = readInt();
-    }
-    switch(choice){
-        case 1: {
-            string titleSearch;
-            cout << "Enter title to search: ";
-            titleSearch = readString();
-            if (products.findProduct(titleSearch)) {
-                products.findProduct(titleSearch)->displayProduct();
-            } else {
-                cout << "Product not found." << endl;
-            }
-            break;
-        }
-        case 2: {
-            string categorySearch;
-            string subcategorySearch;
-            cout << "Enter category to search: ";
-            categorySearch = readString();
-            auto searchCategory = categories.findCategory(categorySearch);
-            while (!searchCategory) {
-                cout << "Invalid Category. Please choose from the above." << endl;
-                categorySearch = readString();
-                searchCategory = categories.findCategory(categorySearch);
-            }
-            cout << "Enter subcategory to search (leave empty for all subcategories): ";
-            subcategorySearch = readString();
-            auto searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
-            while (!subcategorySearch.empty() && !searchSubcategory) {
-                cout << "Invalid Subcategory. Please choose from the above, or leave empty." << endl;
-                subcategorySearch = readString();
-                searchSubcategory = searchCategory->findSubcategory(subcategorySearch);
-            }
-            if (subcategorySearch.empty()) {
-                searchCategory->displayProducts();
-            } else {
-                searchSubcategory->displayProducts();
-            }
-            break;
-        }
-        case 3: {
-            cout << "Results: ";
-            products.displayProducts();
-            cout << endl;
-            cout << "Select a product title: ";
-            string selectedTitle;
-            selectedTitle = readString();
-            while (!products.findProduct(selectedTitle)) {
-                cout << "Invalid Product. Please choose from the above." << endl;
-                selectedTitle = readString();
-            }
-            products.findProduct(selectedTitle)->displayProduct();
-            break;
-        }
-        default: {
-            cout << "Invalid Option." << endl;
-            break;
-        }
-    }
-
-}
 
 
 bool Admin::executeCommand(ProductManager& products, CategoryManager& categories){

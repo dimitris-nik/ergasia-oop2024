@@ -6,10 +6,11 @@
 #include <array>
 using namespace std;
 
-Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile, const string& discountsFile, const string& loyalDiscounts) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile), discountsFile(discountsFile), loyalDiscounts(loyalDiscounts) {
+Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile, const string& discountsFile, const string& loyalDiscountsFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile), discountsFile(discountsFile), loyalDiscountsFile(loyalDiscountsFile) {
     loadCategories();
     loadProducts();
     loadUsers();
+    loadLoyalDiscounts();
 }
 
 Eshop::~Eshop() {
@@ -35,7 +36,7 @@ User* Eshop::login(){
 }
 
 User* Eshop::registers(){
-    string username, password;
+    string username;
     bool exists = false;
     while (!exists) {
         exists = true;
@@ -48,10 +49,9 @@ User* Eshop::registers(){
         }
     } 
     cout << "Please enter your password: ";
-    cin >> password;
-    string isAdminInput;
+    string password = readString();
     cout << "Are you an admin user? (Y/N): ";
-    cin >> isAdminInput;
+    string isAdminInput = readString();
     bool isAdmin = (isAdminInput == "Y" || isAdminInput == "y");
 
     if (isAdmin) {
@@ -97,6 +97,8 @@ void Eshop::run(){
         cout << "Welcome, " << currentUser->getUsername() << "!" << endl;
     }
     currentUser->displayMenu();
+    // Execute command returns false when the user wants to exit
+    // displayMenu() function is overloaded in Admin and Customer classes
     while (currentUser->executeCommand(products, categories)) {
         currentUser->displayMenu();
     }
@@ -117,6 +119,7 @@ void Eshop::loadUsers() {
     while (getline(file, line)) {
         stringstream ss(line);
         string username, password, isAdminStr;
+        // Read the line and split it by commas
         getline(ss, username, ',');
         getline(ss, password, ',');
         getline(ss, isAdminStr, ',');
@@ -124,16 +127,19 @@ void Eshop::loadUsers() {
         if(isAdmin){
             users.addUser(new Admin(username, password));
         } else {
+            // If the user is a customer, we need to load their order history in order to calculate potential discounts
             string historyFileName = "files/order_history/" + username + "_history.txt";
             ifstream historyFile(historyFileName);
             auto discountStats = DiscountStats();
             if (historyFile.is_open()) {
                 string line;
                 while (getline(historyFile, line)) {
+                    // Check if the line is the start of a new cart
                     if (line.find("START---") != string::npos) {
                         discountStats.nextCart();
                         discountStats.ordersCompleted++;
                     }
+                    // Check if the line is the end of a cart
                     else if (!((line.find("END---") != string::npos) or (line.find("Total Cost")!= string::npos)) && line != ""){
                         int quantity;
                         string title;
@@ -142,6 +148,7 @@ void Eshop::loadUsers() {
                         getline(ss, title);
                         title = trim(title);
                         auto product = products.findProduct(title);
+                        // Check if the product exists
                         if (!product) continue; 
                         discountStats.updateProductStats(product, quantity);
                     }
@@ -151,13 +158,20 @@ void Eshop::loadUsers() {
             else{
                 cerr << "Error opening history file." << endl;
             }
+            // Create new customer with the loaded discountStats object
             users.addUser(new Customer(username, password, discountStats));
         }
     }
-    ifstream loyalDiscountsfile("files/loyal_discounts.txt");   
+    file.close();
+}
+
+void Eshop::loadLoyalDiscounts(){
+    ifstream loyalDiscountsfile(loyalDiscountsFile);   
+    string line;
     while (getline(loyalDiscountsfile, line)) {
         stringstream ss(line);
         string username, discountStr;
+        // Read the line and split it by @
         getline(ss, username, '@');
         getline(ss, discountStr);
         User* user = users.findUser(trim(username));
@@ -166,7 +180,7 @@ void Eshop::loadUsers() {
             reinterpret_cast<Customer*>(user)->updateCurrentDiscount(categories);
         }
     }
-    file.close();
+    loyalDiscountsfile.close();
 }
 
 void Eshop::loadProducts() {
@@ -181,6 +195,7 @@ void Eshop::loadProducts() {
     while (getline(file, line)) {
         stringstream ss(line);
         string title, description, category, subcategory, priceStr, measurementType, amountStr;
+        // Read the line and split it by @
         getline(ss, title, '@');
         getline(ss, description, '@');
         getline(ss, category, '@');
@@ -188,11 +203,13 @@ void Eshop::loadProducts() {
         getline(ss, priceStr, '@');
         getline(ss, measurementType, '@');
         getline(ss, amountStr, '@');
+        // trim() function to remove leading and trailing whitespaces
         title = trim(title);
         description = trim(description);
         category = trim(category);
         subcategory = trim(subcategory);
         measurementType = trim(measurementType);
+        // Product object is created here and deleted in the destructor of ProductManager or when the product is removed
         Product * product= new Product(title, description, category, subcategory, stod(priceStr), measurementType, stoi(amountStr));
         categories.addProduct(product, category, subcategory);
         products.addProduct(product);
@@ -215,6 +232,7 @@ void Eshop::loadCategories() {
         return;
     }
     while (getline(file, line)) {
+        // Create category and then add its subcategories
         stringstream ss(line);
         string categoryName;
         string subcategoriesLine;
@@ -234,6 +252,7 @@ void Eshop::loadCategories() {
         
     }
     while (getline(dFile, line)) {
+        // Read the amount of product a customer needs to buy to get a discount
         stringstream ss(line);
         string categoryName;
         string amountStr;
@@ -252,5 +271,5 @@ void Eshop::loadCategories() {
 
 void Eshop::saveChanges() {
     products.saveProducts(productsFile);
-    users.saveUsers(usersFile, loyalDiscounts);
+    users.saveUsers(usersFile, loyalDiscountsFile);
 }

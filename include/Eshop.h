@@ -19,16 +19,17 @@ protected:
     const std::string& productsFile;
     const std::string& usersFile;
     const std::string& discountsFile;
-    const std::string& loyalDiscounts;
+    const std::string& loyalDiscountsFile;
     User* login();
     User* registers();
     void loadUsers();
     void loadProducts();
     void loadCategories();
     void loadHistories();
+    void loadLoyalDiscounts();
     void saveChanges();
 public:
-    Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile, const std::string& discountsFile, const std::string& loyalDiscounts);
+    Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile, const std::string& discountsFile, const std::string& loyalDiscountsFile);
     ~Eshop();
     void run();
 };

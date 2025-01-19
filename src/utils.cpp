@@ -1,7 +1,7 @@
 #include "../include/utils.h"
 
 using namespace std;
-
+// Remove leading and trailing whitespaces
 string trim(const string& str) {
     size_t first = str.find_first_not_of(' ');
     if (string::npos == first) {
@@ -11,6 +11,7 @@ string trim(const string& str) {
     return str.substr(first, (last - first + 1));
 }
 
+// Read functions to better handle input
 int readInt() {
     string input;
     int num;

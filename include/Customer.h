@@ -12,7 +12,6 @@ class Customer : public User {
     DiscountStats discountStats;
     bool hasUsedLoyaltyDiscount = false;
     discount currDiscount = {nullptr, 1.0};
-    void searchProduct(ProductManager products, CategoryManager& categories);
     void addProductToCart(ProductManager& products);
     void updateProductInCart(ProductManager& products);
     void removeProductFromCart(ProductManager& products);

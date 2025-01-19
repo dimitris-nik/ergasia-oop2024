@@ -12,7 +12,6 @@ using namespace std;
 Product::Product(string title, string description, string category, string subcategory, double price, string measurementType, int amount)
     : title(title), description(description), category(category), subcategory(subcategory),
     price(price), measurementType(measurementType), amount(amount) {} 
-    // all we need is the initializer list
 
 void Product::displayProduct() const {
     cout << "-----" << title << "-----" << endl;
@@ -25,7 +24,7 @@ void Product::displayProduct() const {
 
 
 ostream& operator<<(ostream& os, const Product& product) { 
-    //overload operator << in Product class to save products to file
+    //overload operator << in Product class to make saving products to file easier
     os << product.title << " @ " << product.description << " @ "
        << product.category << " @ " << product.subcategory << " @ "
        << fixed << setprecision(2) << product.price << " @ "
@@ -129,12 +128,15 @@ void ProductManager::showUnavailableProducts() const {
 void ProductManager::showTopProducts() const {
     cout << "Top 3 Products:" << endl;
     vector<Product*> sortedProducts;
+    // Add all products to a vector 
     for (const auto& product : products) {
         sortedProducts.push_back(product.second);
     }
+    // Sort the products by the number of times they appeared in carts
     sort(sortedProducts.begin(), sortedProducts.end(), [](Product* a, Product* b) {
         return a->getAppearedInCart() > b->getAppearedInCart();
     });
+    // Display the top 3 products
     for (size_t i = 0; i < 3 && i < sortedProducts.size(); i++) {
         sortedProducts[i]->displayProduct();
         cout << "Times appeared in orders: " << sortedProducts[i]->getAppearedInCart() << endl << endl;
@@ -149,9 +151,11 @@ void ProductManager::saveProducts(const string& productsFile) const {
     }
     bool first = true;
     for (const auto& product : products) {
+        // Add a newline before each product except the first one
         if (!first) {
             file << endl;
         }
+        // Get the product and save it to the file
         file << *(product.second);
         first = false;
     }
