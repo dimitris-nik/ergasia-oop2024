@@ -5,18 +5,18 @@
 using namespace std;
 
 void DiscountStats::updateProductStats(Product* product, int quantity) {
-    categoriesCounter[product->getCategory()] += quantity; // logic is pretty straightforward
+    categoriesCounter[product->getCategory()] += quantity;
     products_Stats[product].appearedInCart += 1; // we need this for favorite product
     product->increaseAppearedInCart(); //we also need this for top products
     if (products_Stats.find(product) == products_Stats.end()) {
-        products_Stats[product].consecutiveOrders = 1; 
-        products_Stats[product].totalAmount = quantity;
+        products_Stats[product].consecutiveOrders = 1; // product appeared in cart for the first time, initialize everything
+        products_Stats[product].totalAmount = quantity; 
         products_Stats[product].foundInLastCart = true;
     } else {
-        if (!products_Stats[product].foundInLastCart) {
+        if (!products_Stats[product].foundInLastCart) { 
             products_Stats[product].foundInLastCart = true;
         }
-        products_Stats[product].consecutiveOrders++;
+        products_Stats[product].consecutiveOrders++; 
         products_Stats[product].totalAmount += quantity;
     }
 }

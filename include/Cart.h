@@ -2,13 +2,13 @@
 #define CART_H
 #include <vector>
 #include "Product.h"
-#include <map>
+#include <unordered_map>
 #include <string>
 
 class Cart {
     double totalCost = 0;
 public:
-    std::map<Product*, int> items; // item, amount
+    std::unordered_map<Product*, int> items; // item, amount
     void addProduct(Product* product, int quantity);
     bool removeProduct(Product* product);
     bool updateProduct(Product* product, int quantity);

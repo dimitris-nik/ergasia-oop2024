@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <fstream>
 #include "User.h"
 #include "Customer.h"
@@ -19,6 +19,7 @@ protected:
     const std::string& productsFile;
     const std::string& usersFile;
     const std::string& discountsFile;
+    const std::string& loyalDiscounts;
     User* login();
     User* registers();
     void loadUsers();
@@ -27,7 +28,7 @@ protected:
     void loadHistories();
     void saveChanges();
 public:
-    Eshop(const std::string& categoriesFile = "files/categories.txt", const std::string& productsFile = "files/products.txt", const std::string& usersFile = "files/users.txt", const std::string& discountsFile = "files/discounts.txt");
+    Eshop(const std::string& categoriesFile, const std::string& productsFile, const std::string& usersFile, const std::string& discountsFile, const std::string& loyalDiscounts);
     ~Eshop();
     void run();
 };

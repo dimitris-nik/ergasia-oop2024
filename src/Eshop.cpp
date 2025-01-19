@@ -6,15 +6,14 @@
 #include <array>
 using namespace std;
 
-Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile, const string& discountsFile) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile), discountsFile(discountsFile) {
+Eshop::Eshop(const string& categoriesFile, const string& productsFile, const string& usersFile, const string& discountsFile, const string& loyalDiscounts) : categoriesFile(categoriesFile), productsFile(productsFile), usersFile(usersFile), discountsFile(discountsFile), loyalDiscounts(loyalDiscounts) {
     loadCategories();
     loadProducts();
     loadUsers();
 }
 
 Eshop::~Eshop() {
-    users.saveUsers(usersFile);
-    products.saveProducts(productsFile);
+    saveChanges();
 }
 
 User* Eshop::login(){
@@ -253,5 +252,5 @@ void Eshop::loadCategories() {
 
 void Eshop::saveChanges() {
     products.saveProducts(productsFile);
-    users.saveUsers(usersFile);
+    users.saveUsers(usersFile, loyalDiscounts);
 }

@@ -45,13 +45,18 @@ UserManager::~UserManager() {
         delete user.second;
     }
 }
-void UserManager::saveUsers(const string& usersFile) const {
+void UserManager::saveUsers(const string& usersFile, const string& loyalDiscounts) const {
     ofstream file(usersFile);
-    ofstream discountsFile("files/loyal_discounts.txt");
+    ofstream discountsFile(loyalDiscounts);
     if (!file.is_open()) {
-        cerr << "Error opening users discount file." << endl;
+        cerr << "Error opening users file." << endl;
         return;
     }
+    if (!discountsFile.is_open()) {
+        cerr << "Error opening loyal discounts file." << endl;
+        return;
+    }
+
     bool first = true;
     bool first_customer = true;
     for (const auto& user : users) { // we need to save the users and their loyalty discounts

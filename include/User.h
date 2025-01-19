@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "Product.h"
 #include "Category.h"
@@ -27,5 +27,5 @@ public:
     void addUser(User* user);
     void removeUser(const std::string& username);
     User* findUser(const std::string& username) const;
-    void saveUsers(const std::string& usersFile) const;
+    void saveUsers(const std::string& usersFile, const std::string& loyalDiscounts) const;
 };
