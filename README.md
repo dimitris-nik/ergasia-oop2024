@@ -321,7 +321,7 @@ class DiscountStats {
 ```
 Κάθε αντικείμενο `DiscountStats` περιέχι ένα map (`products_Stats`) από `Product*` σε ένα struct, το οποίο περιέχει κατάλληλα πεδία ώστε να υλοποιηθούν οι λειτουργίες που περιγράφονται, όπως φανερώνουν τα comments.
 
-Η μέθοδος `updateProductStats` περιέχει λογική που ενημερώνει κατάλληλα την κάθε καταχώρηση του `products_Stats`, δεδομένου ότι το προϊόν μόλις εμφανίστηκε στο καλάθι (βλ. κώδικα). 
+Η μέθοδος `updateProductStats` ενημερώνει κατάλληλα την κάθε καταχώρηση του `products_Stats`, δεδομένου ότι το προϊόν μόλις εμφανίστηκε στο καλάθι. 
 Η `updateProductStats` λειτουργεί με την υπόθεση ότι κάθε διαδοχική της κλήση πρόκειται για προϊόν του ίδιου καλαθιού. Με την μέθοδος `nextCart` δηλώνουμε ότι το τρέχων καλάθι τελείωσε και προχωράμε στο επόμενο, με την ανάλογη ενημέρωση των πεδίων στο `products_Stats`
 
 Επιπλέον ορίστηκε ο τύπος `discount`, ο οποίος πρόκειται απλά για ένα struct που περιέχει ένα `Product*` και το αντίστοιχο discount multiplier (πχ για έκπτωση 20% έχουμε multiplier = 0.8)
@@ -332,6 +332,7 @@ class DiscountStats {
 Δέχεται ως arguement τον `hasUsedLoyaltyDiscount` που είναι ένα bool που δηλώνει αν ο χρήστης έχει ήδη χρησιμοποιήσει το loyalty discount (αποθηκεύεται στον Customer), καθώς και ένα reference στο `CategoryManager` γιατί εκεί αποθηκεύεται η πληροφορία `amountForDiscount` η οποία δηλώνει το πόσα προϊόντα ίδιας κατηγορίας πρέπει να αγοράσει για την έκπτωση 30% σε τυχαίο προϊόν της ίδιας κατηγορίας.
 Επιπλέον, υλοποιήθηκε η μέθοδος `generateRandomProduct` στην κλάση `Category`, που επιστρέφει ένα τυχαίο προϊόν από την κατηγορία.
 
+
 ```c++
 Product* Category::generateRandomProduct(){
     if (products.empty()) {
@@ -340,6 +341,7 @@ Product* Category::generateRandomProduct(){
     return products[rand() % products.size()];
 }
 ```
+
 
 # utils και input
 ```c++
