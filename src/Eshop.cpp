@@ -62,6 +62,7 @@ User* Eshop::registers(){
     } else {
         auto discountStats = DiscountStats();
         auto customer = new Customer(username, password, discountStats);
+        // create history file on signup
         ofstream historyFile("files/order_history/" + username + "_history.txt");
         if (!historyFile.is_open()) {
             cerr << "Error creating history file." << endl;   
@@ -83,6 +84,7 @@ void Eshop::run(){
         option = readString();
     }
     
+    //call register or login function that will return the user
     if (option == "login") {
         currentUser = login();
     } else if (option == "register") {
@@ -137,7 +139,7 @@ void Eshop::loadUsers() {
                     // Check if the line is the start of a new cart
                     if (line.find("START---") != string::npos) {
                         discountStats.nextCart();
-                        discountStats.ordersCompleted++;
+                        discountStats.incrementOrdersCompleted();
                     }
                     // Check if the line is the end of a cart
                     else if (!((line.find("END---") != string::npos) or (line.find("Total Cost")!= string::npos)) && line != ""){
@@ -240,7 +242,7 @@ void Eshop::loadCategories() {
         getline(ss, categoryName, '(');
         categoryName = trim(categoryName);
 
-        Category* category = categories.addCategory(categoryName);
+        Category* category = new Category(categoryName); //this is created here and deleted in the destructor of CategoryManager
 
         if (getline(ss, subcategoriesLine, ')')) {
             stringstream subcats(subcategoriesLine);
@@ -249,6 +251,7 @@ void Eshop::loadCategories() {
                 category->addSubcategory(trim(subcategory));
             }
         }
+        categories.addCategory(category);
         
     }
     while (getline(dFile, line)) {

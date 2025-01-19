@@ -34,6 +34,13 @@ void DiscountStats::nextCart() {
     categoriesCounter.clear();
 }
 
+int DiscountStats::getOrdersCompleted() const {
+    return ordersCompleted;
+}
+void DiscountStats::incrementOrdersCompleted() {
+    ordersCompleted++;
+}
+
 discount DiscountStats::getDiscount(CategoryManager& categories, int hasUsedLoyaltyDiscount) {
     vector<discount> discounts;
     for (const auto& p : products_Stats) {

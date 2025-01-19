@@ -12,7 +12,6 @@ class Customer : public User {
     DiscountStats discountStats;
     bool hasUsedLoyaltyDiscount = false;
     discount currDiscount = {nullptr, 1.0};
-    
 public:
     Customer(const std::string& username, const std::string& password, DiscountStats productStats);
     void displayMenu();

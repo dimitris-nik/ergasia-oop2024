@@ -31,9 +31,12 @@ void Customer::displayMenu() {
 void Customer::addProductToCart(ProductManager& products) {
     string title;
     int quantity;
-
     cout << "Which product do you want to add? ";
     title = readString();
+    if (products.findProduct(title) == nullptr) {
+        cout << "Product not found!" << endl;
+        return;
+    }
     cout << "Enter quantity: ";
     quantity = readInt();
     while (quantity <= 0) {
@@ -135,12 +138,14 @@ void Customer::completeOrder(CategoryManager& categories){
     }
 
     // Append the cart to the history file
-    if (discountStats.ordersCompleted!=0) historyFile << endl << endl;
-    cart.saveToFile(historyFile, ++discountStats.ordersCompleted);
+    if (discountStats.getOrdersCompleted()!=0) historyFile << endl << endl; // if it's the first order no need for a newline
+    discountStats.incrementOrdersCompleted(); //new order, increment the orders completed
+    cart.saveToFile(historyFile, discountStats.getOrdersCompleted()); // save the numbered cart to the history file
     historyFile.close();
+    // checkout: update each product's stock and clear the cart
     cart.checkout();  
-    discountStats.nextCart();
-    updateCurrentDiscount(categories);
+    discountStats.nextCart(); // this is explained in DiscountStats.cpp
+    updateCurrentDiscount(categories); // update the current discount for the next order
     cout << "Order completed!" << endl;
 }
 

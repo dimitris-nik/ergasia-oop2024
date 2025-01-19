@@ -80,10 +80,8 @@ Category* Category::findSubcategory(const string& subcategory) const{
     return nullptr;
 }
 
-Category* CategoryManager::addCategory(const string & category){
-    Category* newCategory = new Category(category);
-    categories.push_back(newCategory);
-    return newCategory;
+void CategoryManager::addCategory(Category* category){
+    categories.push_back(category);
 }
 
 int Category::getAmountForDiscount() const{

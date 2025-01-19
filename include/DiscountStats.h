@@ -4,11 +4,10 @@
 #include "Category.h"
 
 typedef struct stats {
-    int consecutiveOrders = 0;
-    int appearedInCart = 0;
-    int totalAmount = 0;
-    int foundInLastCart = false;
-    double discount = 1.0;
+    int consecutiveOrders = 0; // max amount of times the product was found in the cart in a row
+    int appearedInCart = 0; // total times the product was found in the cart (regardless of the amount)
+    int totalAmount = 0; // total amount of the product found in the cart
+    int foundInLastCart = false; // if the product was found in the last cart
 } productStats;
 
 typedef struct discount {
@@ -19,12 +18,12 @@ typedef struct discount {
 class DiscountStats {
     std::unordered_map<Product*, productStats> products_Stats;
     std::unordered_map<std::string, int> categoriesCounter;
+    int ordersCompleted = 0;
     public: 
-        int ordersCompleted = 0;
         void updateProductStats(Product* product, int quantity);
         void nextCart();
         discount getDiscount(CategoryManager& categories, int hasUsedLoyaltyDiscount);
-        void setOrdersCompleted(int ordersCompleted);
+        void incrementOrdersCompleted();
         int getOrdersCompleted() const;
         void printDiscount(discount discount);
 };
