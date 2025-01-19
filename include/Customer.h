@@ -12,10 +12,6 @@ class Customer : public User {
     DiscountStats discountStats;
     bool hasUsedLoyaltyDiscount = false;
     discount currDiscount = {nullptr, 1.0};
-public:
-    Customer(const std::string& username, const std::string& password, DiscountStats productStats);
-    void displayMenu();
-    bool executeCommand(ProductManager& products, CategoryManager& categories);
     void searchProduct(ProductManager products, CategoryManager& categories);
     void addProductToCart(ProductManager& products);
     void updateProductInCart(ProductManager& products);
@@ -23,7 +19,11 @@ public:
     void completeOrder(CategoryManager& categories);
     void viewOrderHistory();
     void viewCart();
+public:
+    Customer(const std::string& username, const std::string& password, DiscountStats productStats);
+    void displayMenu();
+    bool executeCommand(ProductManager& products, CategoryManager& categories);
+    void updateCurrentDiscount(CategoryManager& categories);
     bool getHasUsedLoyaltyDiscount() const;
     void setHasUsedLoyaltyDiscount(bool hasUsedLoyaltyDiscount);
-    void updateCurrentDiscount(CategoryManager& categories);
 };

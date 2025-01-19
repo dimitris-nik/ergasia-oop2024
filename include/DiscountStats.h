@@ -11,6 +11,7 @@ typedef struct stats {
     double discount = 1.0;
 } productStats;
 
+
 typedef struct discount {
     Product* product;
     double multiplier;

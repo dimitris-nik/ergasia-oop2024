@@ -26,7 +26,7 @@ $(TARGET): $(OBJS)
 	$(CXX) $(OBJS) -o $@
 
 # Compile source files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/%.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean target

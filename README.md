@@ -66,4 +66,41 @@ public:
 
 Η μέθοδος saveUsers αποθηκεύει όλους τους χρήστες στο αρχείο που παρέχεται από το eshop (και μία πληροφορία απαραίτητη για τα discounts σε ένα άλλο αρχείο, θα επιστρέψουμε σε αυτό αργότερα).
 
+### Admin και Customer
+```c
+class Admin : public User {
+    void addProduct(ProductManager& products, CategoryManager& categories);
+    void editProduct(ProductManager& products, CategoryManager& categories);
+    void removeProduct(ProductManager& products, CategoryManager& categories);
+    void searchProduct(ProductManager& products, CategoryManager& categories);    
+public:
+    Admin(std::string username, std::string password);
+    void displayMenu();
+    bool executeCommand(ProductManager& products, CategoryManager& categories);
+};
+
+class Customer : public User {
+    Cart cart;
+    DiscountStats discountStats;
+    bool hasUsedLoyaltyDiscount = false;
+    discount currDiscount = {nullptr, 1.0};
+    void searchProduct(ProductManager products, CategoryManager& categories);
+    void addProductToCart(ProductManager& products);
+    void updateProductInCart(ProductManager& products);
+    void removeProductFromCart(ProductManager& products);
+    void completeOrder(CategoryManager& categories);
+    void viewOrderHistory();
+    void viewCart();
+public:
+    Customer(const std::string& username, const std::string& password, DiscountStats productStats);
+    void displayMenu();
+    bool executeCommand(ProductManager& products, CategoryManager& categories);
+    void updateCurrentDiscount(CategoryManager& categories);
+    bool getHasUsedLoyaltyDiscount() const;
+    void setHasUsedLoyaltyDiscount(bool hasUsedLoyaltyDiscount);
+};
+
+```
+Η κλάση admin αποτελεί επέκταση του User, και υλοποιούνται οι πολυμορφικές μεθόδοι displayMenu και executeCommand 
+
 
