@@ -33,5 +33,4 @@ class CategoryManager {
         Category* findCategory(const std::string& category) const;
         void addProduct(Product* product, const std::string& category, const std::string& subcategory);
         void removeProduct(Product* product);
-       
 };

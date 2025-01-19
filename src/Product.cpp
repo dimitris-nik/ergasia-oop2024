@@ -92,19 +92,11 @@ ProductManager::~ProductManager() {
     }
 }
 
-bool ProductManager::addProduct(Product* product) {
-    if (products.find(product->getTitle()) != products.end()) {
-        return false;
-    }
+void ProductManager::addProduct(Product* product) {
     products[product->getTitle()] = product;
-    return true;
 }
-bool ProductManager::removeProduct(const string& title) {
-    if (products.find(title) == products.end()) {
-        return false;
-    }
+void ProductManager::removeProduct(const string& title) {
     products.erase(title);
-    return true;
 }
 
 void ProductManager::displayProducts() const {

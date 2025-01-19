@@ -6,8 +6,8 @@
 #include <string>
 
 class Cart {
-    double totalCost = 0;
 public:
+    double totalCost = 0;
     std::unordered_map<Product*, int> items; // item, amount
     void addProduct(Product* product, int quantity);
     bool removeProduct(Product* product);

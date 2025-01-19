@@ -21,8 +21,6 @@ int main(int argc, char* argv[]) {
     else discountsFile = "files/discounts.txt";
     if (argc > 5) loyalDiscounts = argv[5];
     else loyalDiscounts = "files/loyal_discounts.txt";
-
-
     Eshop eshop(categoriesFile, productsFile, usersFile, discountsFile, loyalDiscounts);
     eshop.run();
     return 0;
